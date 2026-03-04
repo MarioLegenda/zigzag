@@ -2,7 +2,7 @@ namespace ZigZag.Token;
 
 public class Token
 {
-    public Token(string type, char literal)
+    public Token(string type, string literal)
     {
         Type = type;
         Literal = literal;
@@ -10,5 +10,5 @@ public class Token
     
     public string Type { get; set; }
     
-    public char Literal { get; set; }
+    public string Literal { get; set; }
 }

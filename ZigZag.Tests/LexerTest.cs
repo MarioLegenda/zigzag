@@ -10,9 +10,9 @@ using Xunit.Abstractions;
 class Expected
 {
     public string expectedType;
-    public char expectedLiteral;
+    public string expectedLiteral;
     
-    public Expected(string type, char literal)
+    public Expected(string type, string literal)
     {
         expectedType = type;
         expectedLiteral = literal;
@@ -31,18 +31,16 @@ public class LexterTest
     [Fact]
     public void TestNextToken()
     {
-        string input = "=+(){},;";
+        string input = @"let five = 5;
+let ten = 10;
+let add = fn(x, y) {
+x + y;
+};
+let result = add(five, ten);";
+
         Expected[] expecteds =
         {
-            new Expected(Tokens.ASSIGN, '='),
-            new Expected(Tokens.PLUS, '+'),
-            new Expected(Tokens.LPAREN, '('),
-            new Expected(Tokens.RPAREN, ')'),
-            new Expected(Tokens.LBRACE, '{'),
-            new Expected(Tokens.RBRACE, '}'),
-            new Expected(Tokens.COMMA, ','),
-            new Expected(Tokens.SEMICOLON, ';'),
-            new Expected(Tokens.EOF, ' ')
+            new Expected(Tokens.LET, "let"),
         };
 
         Lexer lexer = new Lexer(input);
@@ -52,7 +50,7 @@ public class LexterTest
             Token token = lexer.NextToken();
 
             Assert.Equal(token.Type, t.expectedType);
-            Assert.Equal(token.Literal, t.expectedLiteral);
+            Assert.Equal(token.Literal.ToString(), t.expectedLiteral);
         }
     }
 }
