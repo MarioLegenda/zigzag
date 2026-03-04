@@ -4,97 +4,115 @@ using ZigZag.Token;
 
 public class Lexer
 {
+    private string Input { get; set; }
+    private int Position { get; set; }
+    private int ReadPosition { get; set; }
+    private byte Ch { get; set; }
+    
     public Lexer(string input)
     {
-        this.input = input;
+        this.Input = input;
         this.readChar();
     }
-    
-    private string input { get; set; }
-    private int position { get; set; }
-    private int readPosition { get; set; }
-    private char ch { get; set; }
 
     private void readChar()
     {
-        if (this.readPosition >= this.input.Length)
+        if (this.ReadPosition >= this.Input.Length)
         {
-            this.ch = ' ';
+            this.Ch = 0;
         }
         else
         {
-            this.ch = this.input[this.readPosition];
+            this.Ch = (byte)this.Input[this.ReadPosition];
         }
 
-        this.position = this.readPosition;
-        this.readPosition += 1;
+        this.Position = this.ReadPosition;
+        this.ReadPosition += 1;
     }
 
     public Token NextToken()
     {
         this.skipWhitespace();
-        
-        switch (this.ch)
+
+        switch (this.Ch)
         {
-            case '=':
-                Token t1 = new Token(Tokens.ASSIGN, this.ch.ToString());
+            case 61:
+                Token t1 = new Token(Tokens.ASSIGN, ((char)this.Ch).ToString());
                 this.readChar();
                 return t1;
-            case ';':
-                Token t2 = new Token(Tokens.SEMICOLON, this.ch.ToString());
+            case 59:
+                Token t2 = new Token(Tokens.SEMICOLON, ((char)this.Ch).ToString());
                 this.readChar();
                 return t2;
-            case '(':
-                Token t3 = new Token(Tokens.LPAREN, this.ch.ToString());
+            case 40:
+                Token t3 = new Token(Tokens.LPAREN, ((char)this.Ch).ToString());
                 this.readChar();
                 return t3;
-            case ')':
-                Token t4 = new Token(Tokens.RPAREN, this.ch.ToString());
+            case 41:
+                Token t4 = new Token(Tokens.RPAREN, ((char)this.Ch).ToString());
                 this.readChar();
                 return t4;
-            case ',':
-                Token t5 = new Token(Tokens.COMMA, this.ch.ToString());
+            case 44:
+                Token t5 = new Token(Tokens.COMMA, ((char)this.Ch).ToString());
                 this.readChar();
                 return t5;
-            case '+':
-                Token t6 = new Token(Tokens.PLUS, this.ch.ToString());
+            case 43:
+                Token t6 = new Token(Tokens.PLUS, ((char)this.Ch).ToString());
                 this.readChar();
                 return t6;
-            case '{':
-                Token t7 = new Token(Tokens.LBRACE, this.ch.ToString());
+            case 123:
+                Token t7 = new Token(Tokens.LBRACE, ((char)this.Ch).ToString());
                 this.readChar();
                 return t7;
-            case '}':
-                Token t8 = new Token(Tokens.RBRACE, this.ch.ToString());
+            case 125:
+                Token t8 = new Token(Tokens.RBRACE, ((char)this.Ch).ToString());
                 this.readChar();
                 return t8;
-            case ' ':
-                Token eof = new Token(Tokens.EOF, this.ch.ToString());
+            case 0:
+                Token eof = new Token(Tokens.EOF, ((char)this.Ch).ToString());
                 return eof;
             default:
-                if (isLetter(this.ch))
+                if (isLetter((char)this.Ch))
                 {
-                    Token tok = new Token("", this.readIdentifier());
+                    string identifier = this.readIdentifier();
+                    Token tok = new Token(Keywords.Lookup(identifier), identifier);
+                    return tok;
+                }
+                else if (isDigit((char)this.Ch))
+                {
+                    Token tok = new Token(Tokens.INT, this.readNumber());
                     this.readChar();
                     return tok;
                 }
                 else
                 {
-                    return new Token(Tokens.ILLEGAL, this.ch.ToString());
+                    return new Token(Tokens.ILLEGAL, this.Ch.ToString());
                 }
         }
     }
 
     private string readIdentifier()
     {
-        int position = this.position;
+        int position = this.Position;
 
-        while (isLetter(this.ch))
+        while (isLetter((char)this.Ch))
         {
             this.readChar();
         }
 
-        return this.input.Substring(position, this.position - position);
+        return this.Input.Substring(position, this.Position - position);
+    }
+
+    private string readNumber()
+    {
+        int position = this.Position;
+
+        while (isDigit((char)this.Ch))
+        {
+            this.readChar();
+        }
+
+        return this.Input.Substring(position, this.Position - position);
     }
 
     private bool isLetter(char ch)
@@ -102,9 +120,14 @@ public class Lexer
         return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_';
     }
 
+    private bool isDigit(char ch)
+    {
+        return '0' <= ch && ch <= '9';
+    }
+
     private void skipWhitespace()
     {
-        while(this.ch == ' ' || this.ch == '\t' || this.ch == '\n' || this.ch == '\r')
+        while(this.Ch == ' ' || this.Ch == '\t' || this.Ch == '\n' || this.Ch == '\r')
         {
             this.readChar();
         }
