@@ -6,8 +6,6 @@ public class Tokens
     public const string EOF = "EOF";
     public const string IDENT = "IDENT";
     public const string INT = "INT";
-    public const string ASSIGN = "=";
-    public const string PLUS = "+";
     public const string COMMA = ",";
     public const string SEMICOLON = ";";
     public const string LPAREN = "(";
@@ -16,4 +14,23 @@ public class Tokens
     public const string RBRACE = "}";
     public const string FUNCTION = "FUNCTION";
     public const string LET = "LET";
+    
+    public const string PLUS = "+";
+    public const string ASSIGN = "=";
+    public const string MINUS = "-";
+    public const string BANG = "!";
+    public const string ASTERIX = "*";
+    public const string SLASH = "/";
+
+    public const string LT = "<";
+    public const string GT = ">";
+
+    public const string TRUE = "TRUE";
+    public const string FALSE = "FALSE";
+    public const string IF = "IF";
+    public const string ELSE= "ELSE";
+    public const string RETURN = "RETURN";
+
+    public const string EQ = "==";
+    public const string NOT_EQ = "!=";
 }

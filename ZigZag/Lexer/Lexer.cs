@@ -37,9 +37,20 @@ public class Lexer
         switch (this.Ch)
         {
             case 61:
-                Token t1 = new Token(Tokens.ASSIGN, ((char)this.Ch).ToString());
-                this.readChar();
-                return t1;
+                if (this.peekChar() == 61)
+                {
+                    byte c = this.Ch;
+                    this.readChar();
+                    Token t15 = new Token(Tokens.EQ, ((char)this.Ch).ToString() + ((char) c).ToString());
+                    this.readChar();
+                    return t15;
+                }
+                else
+                {
+                    Token t1 = new Token(Tokens.ASSIGN, ((char)this.Ch).ToString());
+                    this.readChar();
+                    return t1;
+                }
             case 59:
                 Token t2 = new Token(Tokens.SEMICOLON, ((char)this.Ch).ToString());
                 this.readChar();
@@ -68,6 +79,41 @@ public class Lexer
                 Token t8 = new Token(Tokens.RBRACE, ((char)this.Ch).ToString());
                 this.readChar();
                 return t8;
+            case 45:
+                Token t9 = new Token(Tokens.MINUS, ((char)this.Ch).ToString());
+                this.readChar();
+                return t9;
+            case 33:
+                if (this.peekChar() == 61)
+                {
+                    byte c = this.Ch;
+                    this.readChar();
+                    Token t15 = new Token(Tokens.NOT_EQ, ((char)c).ToString() + ((char) this.Ch).ToString());
+                    this.readChar();
+                    return t15;
+                }
+                else
+                {
+                    Token t1 = new Token(Tokens.BANG, ((char)this.Ch).ToString());
+                    this.readChar();
+                    return t1;
+                }
+            case 42:
+                Token t11 = new Token(Tokens.ASTERIX, ((char)this.Ch).ToString());
+                this.readChar();
+                return t11;
+            case 47:
+                Token t12 = new Token(Tokens.SLASH, ((char)this.Ch).ToString());
+                this.readChar();
+                return t12;
+            case 60:
+                Token t13 = new Token(Tokens.LT, ((char)this.Ch).ToString());
+                this.readChar();
+                return t13;
+            case 62:
+                Token t14 = new Token(Tokens.GT, ((char)this.Ch).ToString());
+                this.readChar();
+                return t14;
             case 0:
                 Token eof = new Token(Tokens.EOF, ((char)this.Ch).ToString());
                 return eof;
@@ -81,7 +127,6 @@ public class Lexer
                 else if (isDigit((char)this.Ch))
                 {
                     Token tok = new Token(Tokens.INT, this.readNumber());
-                    this.readChar();
                     return tok;
                 }
                 else
@@ -130,6 +175,18 @@ public class Lexer
         while(this.Ch == ' ' || this.Ch == '\t' || this.Ch == '\n' || this.Ch == '\r')
         {
             this.readChar();
+        }
+    }
+
+    private byte peekChar()
+    {
+        if (this.ReadPosition >= this.Input.Length)
+        {
+            return 0;
+        }
+        else
+        {
+            return (byte)this.Input[this.ReadPosition];
         }
     }
 }
