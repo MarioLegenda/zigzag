@@ -1,32 +1,6 @@
 ﻿using ZigZag.Lexer;
 
-using ZigZag.Token;
-
-Lexer lexer = new Lexer(@"let five = 5;
-let ten = 10;
-let add = fn(x, y) {
-x + y;
-};
-let result = add(five, ten);
-!-/*5;
-5 < 10 > 5;
-
-if (5 < 10) {
-    return true;
-} else {
-    return false;
-}
-
-10 == 10;
-10 != 9;
-");
-
-string input = "-!*/<>";
-
-foreach (char t in input)
-{
-    Console.WriteLine((byte)t);
-}
+using ZigZag.Parser;
 
 string user = Environment.UserName;
 Console.WriteLine("Hello {0}, this is the ZigZag programming language.", user);
@@ -42,18 +16,16 @@ static void Start(TextReader input, TextWriter output)
     {
         output.Write(PROMPT);
 
-        string line = input.ReadLine();
+        string? line = input.ReadLine();
         if (line == null)
         {
             return;
         }
-
-        var lexer = new Lexer(line);
-
-        for (var tok = lexer.NextToken(); tok.Type != Tokens.EOF; tok = lexer.NextToken())
-        {
-            output.WriteLine(tok.Type, tok.Literal);
-        }
+        
+        Parser p = new Parser(new Lexer(line));
+        ZigZag.Ast.Program program = p.ParseProgram();
+        
+        Console.WriteLine(program.TokenLiteral());
     }
 }
 
