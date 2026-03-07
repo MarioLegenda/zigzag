@@ -2,7 +2,6 @@
 namespace ZigZag.Tests;
 
 using ZigZag.Ast;
-using ZigZag.Token;
 using ZigZag.Lexer;
 using Parser;
 using Xunit;
@@ -15,6 +14,31 @@ public class ParserTest
     public ParserTest(ITestOutputHelper output)
     {
         _output = output;
+    }
+    
+    [Fact]
+    public void TestReturnStatement()
+    {
+        string input = @"
+return 5;
+return 10;
+return 838383;
+";
+        
+        Parser p = new Parser(new Lexer(input));
+        Program program = p.ParseProgram();
+
+        Assert.NotNull(program);
+        Assert.Empty(p.Errors());
+        
+        Assert.Equal(3, program.Statements.Count);
+        
+        foreach (INode stmt in program.Statements)
+        {
+            Assert.IsType<ReturnStatement>(stmt);
+            ReturnStatement returnStatement = (ReturnStatement)stmt;
+            Assert.Equal("return", returnStatement.TokenLiteral());
+        }
     }
 
     [Fact]
@@ -30,6 +54,7 @@ let foobar = 838383;
         Program program = p.ParseProgram();
 
         Assert.NotNull(program);
+        Assert.Empty(p.Errors());
         Assert.Equal(3, program.Statements.Count);
 
         string[] tests =

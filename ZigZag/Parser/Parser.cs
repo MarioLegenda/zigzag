@@ -7,6 +7,7 @@ using Ast;
 public class Parser
 {
     private Lexer Lexer { get; set; }
+    private List<string> _errors = new();
 
     private Token _currentToken;
     private Token _peekToken;
@@ -37,6 +38,11 @@ public class Parser
         return program;
     }
 
+    public List<string> Errors()
+    {
+        return this._errors;
+    }
+
     private void nextToken()
     {
         this._currentToken = this._peekToken;
@@ -49,9 +55,28 @@ public class Parser
         {
             case Tokens.LET:
                 return parseLetStatement();
+            case Tokens.RETURN:
+                return parseReturnStatement();
             default:
                 return null;
         }
+    }
+
+    private ReturnStatement? parseReturnStatement()
+    {
+        ReturnStatement returnStatement = new ReturnStatement();
+        returnStatement.Token = this._currentToken;
+        
+        this.nextToken();
+        
+        // TODO: We're skipping the expressions until we
+        // encounter a semicolon
+        while (!this.curTokenIs(Tokens.SEMICOLON))
+        {
+            this.nextToken();
+        }
+        
+        return returnStatement;
     }
 
     private LetStatement? parseLetStatement()
@@ -73,6 +98,8 @@ public class Parser
             return null;
         }
 
+        // TODO: We're skipping the expressions until we
+        // encounter a semicolon
         while (!this.curTokenIs(Tokens.SEMICOLON))
         {
             this.nextToken();
@@ -99,6 +126,13 @@ public class Parser
             return true;
         }
 
+        this.peekError(token);
         return false;
+    }
+
+    private void peekError(string token)
+    {
+        string msg = $"Expected next token to be {token}, got {this._peekToken.Type}";
+        this._errors.Add(msg);
     }
 }
