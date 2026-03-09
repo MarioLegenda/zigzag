@@ -1,4 +1,6 @@
 
+using Xunit.Sdk;
+
 namespace ZigZag.Tests;
 
 using ZigZag.Ast;
@@ -14,6 +16,26 @@ public class ParserTest
     public ParserTest(ITestOutputHelper output)
     {
         _output = output;
+    }
+
+    [Fact]
+    public void TestIdentifierStatement()
+    {
+        string input = "foobar;";
+        
+        Parser p = new Parser(new Lexer(input));
+        Program program = p.ParseProgram();
+
+        Assert.NotNull(program);
+        Assert.Empty(p.Errors());
+
+        Assert.Single(program.Statements);
+
+        ExpressionStatement expressionStatement = (ExpressionStatement)program.Statements[0];
+        Identifier identifier = (Identifier)expressionStatement.Expression;
+        
+        Assert.Equal("foobar", identifier.Value);
+        Assert.Equal("foobar", identifier.TokenLiteral());
     }
     
     [Fact]

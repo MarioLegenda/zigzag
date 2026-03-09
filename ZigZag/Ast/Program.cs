@@ -16,4 +16,12 @@ public class Program : INode
             return "";
         }
     }
+
+    public void String()
+    {
+        foreach (INode stmt in this.Statements)
+        {
+            stmt.String();
+        }
+    }
 }

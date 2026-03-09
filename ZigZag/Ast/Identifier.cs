@@ -17,4 +17,9 @@ public class Identifier : IExpression
     {
         return this.Token.Literal;
     }
+
+    public void String()
+    {
+        Console.Write(this.Value);
+    }
 }
