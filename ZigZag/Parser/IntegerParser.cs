@@ -5,7 +5,7 @@ using ZigZag.Token;
 
 public class IntegerParser : IPrefixParser
 {
-    public IExpression Parse(Token token)
+    public IExpression Parse(Token token, Parser parser)
     {
         IntegerLiteral integerLiteral = new IntegerLiteral();
         integerLiteral.Token = token;

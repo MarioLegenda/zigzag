@@ -10,11 +10,14 @@ public class Parser: BaseParser
     {
         this.Lexer = lexer;
         
-        this.nextToken();
-        this.nextToken();
+        this.NextToken();
+        this.NextToken();
 
         this.prefixParsers[Tokens.IDENT] = new IdentifierParser();
         this.prefixParsers[Tokens.INT] = new IntegerParser();
+
+        this.prefixParsers[Tokens.BANG] = new PrefixExpression();
+        this.prefixParsers[Tokens.MINUS] = new PrefixExpression();
     }
 
     public Program ParseProgram()
@@ -29,10 +32,23 @@ public class Parser: BaseParser
                 program.Statements.Add(stmt);
             }
 
-            this.nextToken();
+            this.NextToken();
         }
 
         return program;
+    }
+    
+    public IExpression ParseExpression(ParsingTokens precendence)
+    {
+        if (this.prefixParsers.ContainsKey(this._currentToken.Type))
+        {
+            IPrefixParser? parser = this.prefixParsers[this._currentToken.Type];
+            IExpression leftExp = parser.Parse(this._currentToken, this);
+
+            return leftExp;
+        }
+
+        return null;
     }
 
     private IStatement? parseStatement()
@@ -52,28 +68,14 @@ public class Parser: BaseParser
     {
         ExpressionStatement expressionStatement = new ExpressionStatement();
         expressionStatement.Token = this._currentToken;
-        expressionStatement.Expression = this.parseExpression(ParsingTokens.LOWEST);
+        expressionStatement.Expression = this.ParseExpression(ParsingTokens.LOWEST);
 
         if (this.peekTokenIs(Tokens.SEMICOLON))
         {
-            this.nextToken();
+            this.NextToken();
         }
         
         return expressionStatement;
-    }
-
-    private IExpression parseExpression(ParsingTokens precendence)
-    {
-        if (this.prefixParsers.ContainsKey(this._currentToken.Type))
-        {
-            IPrefixParser? parser = this.prefixParsers[this._currentToken.Type];
-            
-            IExpression leftExp = parser.Parse(this._currentToken);
-
-            return leftExp;
-        }
-
-        return null;
     }
 
     private ReturnStatement? parseReturnStatement()
@@ -81,13 +83,13 @@ public class Parser: BaseParser
         ReturnStatement returnStatement = new ReturnStatement();
         returnStatement.Token = this._currentToken;
         
-        this.nextToken();
+        this.NextToken();
         
         // TODO: We're skipping the expressions until we
         // encounter a semicolon
         while (!this.curTokenIs(Tokens.SEMICOLON))
         {
-            this.nextToken();
+            this.NextToken();
         }
         
         return returnStatement;
@@ -115,14 +117,9 @@ public class Parser: BaseParser
         // encounter a semicolon
         while (!this.curTokenIs(Tokens.SEMICOLON))
         {
-            this.nextToken();
+            this.NextToken();
         }
         
         return letStatement;
-    }
-
-    private void parseIntegerLiteral()
-    {
-
     }
 }

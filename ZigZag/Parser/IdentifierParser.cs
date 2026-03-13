@@ -5,7 +5,7 @@ using Token;
 
 public class IdentifierParser: IPrefixParser
 {
-    public IExpression Parse(Token token)
+    public IExpression Parse(Token token, Parser parser)
     {
         return new Identifier(token, token.Literal);
     }

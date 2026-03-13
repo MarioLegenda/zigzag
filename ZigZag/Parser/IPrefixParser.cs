@@ -5,5 +5,5 @@ using Token;
 
 public interface IPrefixParser
 {
-    public IExpression Parse(Token token);
+    public IExpression Parse(Token token, Parser parser);
 }

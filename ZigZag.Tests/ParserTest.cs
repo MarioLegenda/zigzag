@@ -9,6 +9,20 @@ using Parser;
 using Xunit;
 using Xunit.Abstractions;
 
+class ExpectedPrefixExpression
+{
+    public string input;
+    public string theOperator;
+    public int integerValue;
+
+    public ExpectedPrefixExpression(string input, string op, int integerValue)
+    {
+        this.input = input;
+        this.theOperator = op;
+        this.integerValue = integerValue;
+    }
+}
+
 public class ParserTest
 {
     private readonly ITestOutputHelper _output;
@@ -16,6 +30,33 @@ public class ParserTest
     public ParserTest(ITestOutputHelper output)
     {
         _output = output;
+    }
+
+    [Fact]
+    public void TestParsingPrefixExpressions()
+    {
+        ExpectedPrefixExpression[] expecteds =
+        {
+            new ExpectedPrefixExpression("!5", "!", 5),
+            new ExpectedPrefixExpression("-15", "-", 15),
+        };
+
+        foreach (ExpectedPrefixExpression exp in expecteds)
+        {
+            Parser parser = new Parser(new Lexer(exp.input));
+            Program program = parser.ParseProgram();
+            
+            Assert.NotNull(program);
+            Assert.Empty(parser.Errors());
+            
+            Assert.Single(program.Statements);
+            
+            ExpressionStatement expressionStatement = (ExpressionStatement)program.Statements[0];
+            Ast.PrefixExpression prefixExpression = (Ast.PrefixExpression)expressionStatement.Expression;
+            
+            Assert.Equal(prefixExpression.Operator, exp.theOperator);
+            testIntegerLiteral(prefixExpression.Right, exp.integerValue);
+        }
     }
 
     [Fact]
@@ -101,6 +142,12 @@ let foobar = 838383;
         
         Assert.Equal(name, letStatement.Name.Value);
         Assert.Equal(name, letStatement.Name.TokenLiteral());
-        
+    }
+
+    private void testIntegerLiteral(IExpression expression, int integerValue)
+    {
+        IntegerLiteral literal = (IntegerLiteral)expression;
+        Assert.Equal(literal.Value, integerValue);
+        Assert.Equal(literal.TokenLiteral(), integerValue + "");
     }
 }

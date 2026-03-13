@@ -13,6 +13,12 @@ public abstract class BaseParser
     
     protected Dictionary<string, IPrefixParser?> prefixParsers = new ();
     protected Dictionary<string, IInfixParser?> _infixParsers = new();
+    
+    public void NextToken()
+    {
+        this._currentToken = this._peekToken;
+        this._peekToken = this.Lexer.NextToken();
+    }
 
     public BaseParser(Lexer lexer)
     {
@@ -33,7 +39,7 @@ public abstract class BaseParser
     {
         if (this.peekTokenIs(token))
         {
-            this.nextToken();
+            this.NextToken();
             return true;
         }
 
@@ -51,11 +57,5 @@ public abstract class BaseParser
     public List<string> Errors()
     {
         return this._errors;
-    }
-
-    protected void nextToken()
-    {
-        this._currentToken = this._peekToken;
-        this._peekToken = this.Lexer.NextToken();
     }
 }
