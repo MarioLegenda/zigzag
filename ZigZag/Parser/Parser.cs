@@ -15,9 +15,17 @@ public class Parser: BaseParser
 
         this.prefixParsers[Tokens.IDENT] = new IdentifierParser();
         this.prefixParsers[Tokens.INT] = new IntegerParser();
-
         this.prefixParsers[Tokens.BANG] = new PrefixExpression();
         this.prefixParsers[Tokens.MINUS] = new PrefixExpression();
+        
+        this._infixParsers[Tokens.MINUS] = new InfixParser();
+        this._infixParsers[Tokens.PLUS] = new InfixParser();
+        this._infixParsers[Tokens.SLASH] = new InfixParser();
+        this._infixParsers[Tokens.ASTERIX] = new InfixParser();
+        this._infixParsers[Tokens.EQ] = new InfixParser();
+        this._infixParsers[Tokens.NOT_EQ] = new InfixParser();
+        this._infixParsers[Tokens.LT] = new InfixParser();
+        this._infixParsers[Tokens.GT] = new InfixParser();
     }
 
     public Program ParseProgram()
@@ -38,17 +46,31 @@ public class Parser: BaseParser
         return program;
     }
     
-    public IExpression ParseExpression(ParsingTokens precendence)
+    public IExpression ParseExpression(ParsingTokens precedence)
     {
-        if (this.prefixParsers.ContainsKey(this._currentToken.Type))
+        if (!this.prefixParsers.ContainsKey(this._currentToken.Type))
         {
-            IPrefixParser? parser = this.prefixParsers[this._currentToken.Type];
-            IExpression leftExp = parser.Parse(this._currentToken, this);
-
-            return leftExp;
+            throw new Exception($"No prefix parser for {this._currentToken.Type}");
         }
 
-        return null;
+        IPrefixParser parser = this.prefixParsers[this._currentToken.Type];
+        IExpression leftExp = parser.Parse(this._currentToken, this);
+
+        while (!this.peekTokenIs(Tokens.SEMICOLON) && precedence < this.peekPrecendence())
+        {
+            if (!this._infixParsers.ContainsKey(this._peekToken.Type))
+            {
+                return leftExp;
+            }
+
+            IInfixParser infixParser = this._infixParsers[this._peekToken.Type];
+
+            this.NextToken();
+
+            leftExp = infixParser.Parse(this._currentToken, leftExp, this);
+        }
+
+        return leftExp;
     }
 
     private IStatement? parseStatement()
@@ -76,6 +98,26 @@ public class Parser: BaseParser
         }
         
         return expressionStatement;
+    }
+
+    public ParsingTokens peekPrecendence()
+    {
+        if (Precendences.precedences.ContainsKey(this._peekToken.Literal))
+        {
+            return Precendences.precedences[this._peekToken.Literal];
+        }
+
+        return ParsingTokens.LOWEST;
+    }
+
+    public ParsingTokens currentPrecendence()
+    {
+        if (Precendences.precedences.ContainsKey(this._currentToken.Literal))
+        {
+            return Precendences.precedences[this._currentToken.Literal];
+        }
+
+        return ParsingTokens.LOWEST;
     }
 
     private ReturnStatement? parseReturnStatement()

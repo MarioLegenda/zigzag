@@ -8,12 +8,14 @@ public class PrefixExpression : IExpression
     public string Operator;
     public IExpression Right;
 
-    public void String()
+    public string String()
     {
-        Console.Write("(");
-        Console.Write(this.Operator);
-        this.Right.String();
-        Console.Write(")");
+        string str = "(";
+        str += this.Operator;
+        str += this.Right.String();
+        str += ")";
+
+        return str;
     }
 
     public string TokenLiteral()

@@ -6,6 +6,7 @@ using ZigZag.Ast;
 public class PrefixExpression: IPrefixParser
 {
     public Token Token { get; set; }
+    
     public IExpression Parse(Token token, Parser parser)
     {
         Ast.PrefixExpression expression = new Ast.PrefixExpression();

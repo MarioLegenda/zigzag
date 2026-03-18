@@ -1,8 +1,9 @@
-using ZigZag.Ast;
-
 namespace ZigZag.Parser;
+
+using ZigZag.Ast;
+using ZigZag.Token;
 
 public interface IInfixParser
 {
-    public IExpression Parse(IExpression expression);
+    public IExpression Parse(Token token, IExpression left, Parser parser);
 }

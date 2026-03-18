@@ -12,14 +12,17 @@ public class ReturnStatement: IStatement
         return this.Token.Literal;
     }
 
-    public void String()
+    public string String()
     {
-        Console.Write(this.Token.Literal + " ");
+        string str = "";
+        str += this.Token.Literal + " ";
         if (this.ReturnValue != null)
         {
-            this.ReturnValue.String();
+            str += this.ReturnValue.String();
         }
-        
-        Console.Write(";");
+
+        str += ";";
+
+        return str;
     }
 }

@@ -7,9 +7,9 @@ public class IntegerLiteral : IExpression
     public Token Token { get; set; }
     public int Value { get; set; }
     
-    public void String()
+    public string String()
     {
-        Console.Write(this.Token.Literal);
+        return this.Token.Literal;
     }
 
     public string TokenLiteral()

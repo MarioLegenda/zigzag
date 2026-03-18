@@ -13,17 +13,20 @@ public class LetStatement : IStatement
         return this.Token.Literal;
     }
 
-    public void String()
+    public string String()
     {
-        Console.Write(this.TokenLiteral() + " ");
-        this.Name.String();
-        Console.Write(" = ");
+        string str = "";
+        str += this.TokenLiteral() + " ";
+        str += this.Name.String();
+        str += " = ";
 
         if (this.Value != null)
         {
-            this.Value.String();
+            str += this.Value.String();
         }
 
-        Console.Write(";");
+        str += ";";
+
+        return str;
     }
 }

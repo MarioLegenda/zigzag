@@ -23,6 +23,8 @@ class ExpectedPrefixExpression
     }
 }
 
+record ExpectedPrecendenceParsing(string input, string expected);
+
 public class ParserTest
 {
     private readonly ITestOutputHelper _output;
@@ -30,6 +32,40 @@ public class ParserTest
     public ParserTest(ITestOutputHelper output)
     {
         _output = output;
+    }
+
+    [Fact]
+    public void TestOperatorPrecedenceParsing()
+    {
+        var tests = new[]
+        {
+            new ExpectedPrecendenceParsing("-a * b", "((-a) * b)"),
+            new ExpectedPrecendenceParsing("!-a", "(!(-a))"),
+            new ExpectedPrecendenceParsing("a + b + c", "((a + b) + c)"),
+            new ExpectedPrecendenceParsing("a + b - c", "((a + b) - c)"),
+            new ExpectedPrecendenceParsing("a * b * c", "((a * b) * c)"),
+            new ExpectedPrecendenceParsing("a * b / c", "((a * b) / c)"),
+            new ExpectedPrecendenceParsing("a + b / c", "(a + (b / c))"),
+            new ExpectedPrecendenceParsing("a + b * c + d / e - f", "(((a + (b * c)) + (d / e)) - f)"),
+            new ExpectedPrecendenceParsing("3 + 4; -5 * 5", "(3 + 4)((-5) * 5)"),
+            new ExpectedPrecendenceParsing("5 > 4 == 3 < 4", "((5 > 4) == (3 < 4))"),
+            new ExpectedPrecendenceParsing("5 < 4 != 3 > 4", "((5 < 4) != (3 > 4))"),
+            new ExpectedPrecendenceParsing("3 + 4 * 5 == 3 * 1 + 4 * 5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"),
+            new ExpectedPrecendenceParsing("3 + 4 * 5 == 3 * 1 + 4 * 5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"),
+        };
+
+        foreach (var test in tests)
+        {
+            Parser parser = new Parser(new Lexer(test.input));
+            Program program = parser.ParseProgram();
+            
+            Assert.NotNull(program);
+            Assert.Empty(parser.Errors());
+            
+            string actual = program.String();
+            
+            Assert.Equal(actual, test.expected);
+        }
     }
 
     [Fact]
@@ -51,7 +87,7 @@ public class ParserTest
             
             Assert.Single(program.Statements);
             
-            ExpressionStatement expressionStatement = (ExpressionStatement)program.Statements[0];
+            Ast.ExpressionStatement expressionStatement = (Ast.ExpressionStatement)program.Statements[0];
             Ast.PrefixExpression prefixExpression = (Ast.PrefixExpression)expressionStatement.Expression;
             
             Assert.Equal(prefixExpression.Operator, exp.theOperator);

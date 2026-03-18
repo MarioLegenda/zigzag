@@ -18,8 +18,10 @@ public class Identifier : IExpression
         return this.Token.Literal;
     }
 
-    public void String()
+    public string String()
     {
         Console.Write(this.Value);
+
+        return this.Value;
     }
 }

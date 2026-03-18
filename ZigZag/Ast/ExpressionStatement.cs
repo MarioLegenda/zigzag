@@ -12,11 +12,13 @@ public class ExpressionStatement: IExpression
         return this.Token.Literal;
     }
 
-    public void String()
+    public string String()
     {
         if (this.Expression != null)
         {
-            this.Expression.String();
+            return this.Expression.String();
         }
+
+        return "";
     }
 }

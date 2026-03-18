@@ -17,11 +17,14 @@ public class Program : INode
         }
     }
 
-    public void String()
+    public string String()
     {
+        string str = "";
         foreach (INode stmt in this.Statements)
         {
-            stmt.String();
+            str += stmt.String();
         }
+
+        return str;
     }
 }
