@@ -18,6 +18,8 @@ public class Parser: BaseParser
         this.prefixParsers[Tokens.BANG] = new PrefixExpression();
         this.prefixParsers[Tokens.MINUS] = new PrefixExpression();
         
+        this.prefixParsers[Tokens.LPAREN] = new GroupedExpressionParser();
+        
         this.prefixParsers[Tokens.TRUE] = new BooleanParser();
         this.prefixParsers[Tokens.FALSE] = new BooleanParser();
         

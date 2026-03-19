@@ -93,6 +93,10 @@ public class ParserTest
             new ExpectedPrecendenceParsing("false", "false"),
             new ExpectedPrecendenceParsing("3 > 5 == false", "((3 > 5) == false)"),
             new ExpectedPrecendenceParsing("3 < 5 == true", "((3 < 5) == true)"),
+            new ExpectedPrecendenceParsing("1 + (2 + 3) + 4", "((1 + (2 + 3)) + 4)"),
+            new ExpectedPrecendenceParsing("(5 + 5) * 2", "((5 + 5) * 2)"),
+            new ExpectedPrecendenceParsing("-(5 + 5)", "(-(5 + 5))"),
+            new ExpectedPrecendenceParsing("!(true == true)", "(!(true == true))"),
         };
 
         foreach (ExpectedPrecendenceParsing test in tests)

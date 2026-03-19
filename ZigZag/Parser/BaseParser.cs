@@ -35,7 +35,7 @@ public abstract class BaseParser
         return this._peekToken.Type == token;
     }
 
-    protected bool expectPeek(string token)
+    public bool expectPeek(string token)
     {
         if (this.peekTokenIs(token))
         {
