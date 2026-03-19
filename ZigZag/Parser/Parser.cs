@@ -18,6 +18,9 @@ public class Parser: BaseParser
         this.prefixParsers[Tokens.BANG] = new PrefixExpression();
         this.prefixParsers[Tokens.MINUS] = new PrefixExpression();
         
+        this.prefixParsers[Tokens.TRUE] = new BooleanParser();
+        this.prefixParsers[Tokens.FALSE] = new BooleanParser();
+        
         this._infixParsers[Tokens.MINUS] = new InfixParser();
         this._infixParsers[Tokens.PLUS] = new InfixParser();
         this._infixParsers[Tokens.SLASH] = new InfixParser();
@@ -129,7 +132,7 @@ public class Parser: BaseParser
         
         // TODO: We're skipping the expressions until we
         // encounter a semicolon
-        while (!this.curTokenIs(Tokens.SEMICOLON))
+        while (!this.CurTokenIs(Tokens.SEMICOLON))
         {
             this.NextToken();
         }
@@ -151,13 +154,12 @@ public class Parser: BaseParser
 
         if (!this.expectPeek(Tokens.ASSIGN))
         {
-            Console.WriteLine("Enters peek assign");
             return null;
         }
 
         // TODO: We're skipping the expressions until we
         // encounter a semicolon
-        while (!this.curTokenIs(Tokens.SEMICOLON))
+        while (!this.CurTokenIs(Tokens.SEMICOLON))
         {
             this.NextToken();
         }

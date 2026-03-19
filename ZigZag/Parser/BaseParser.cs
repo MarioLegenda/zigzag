@@ -25,7 +25,7 @@ public abstract class BaseParser
         this.Lexer = lexer;
     }
     
-    protected bool curTokenIs(string token)
+    public bool CurTokenIs(string token)
     {
         return this._currentToken.Type == token;
     }

@@ -23,7 +23,10 @@ class ExpectedPrefixExpression
     }
 }
 
+
 record ExpectedPrecendenceParsing(string input, string expected);
+
+record ExpectedBooleanParsing(string input, string op, bool expected);
 
 public class ParserTest
 {
@@ -32,6 +35,40 @@ public class ParserTest
     public ParserTest(ITestOutputHelper output)
     {
         _output = output;
+    }
+
+    [Fact]
+    public void TestBooleanParsing()
+    {
+        ExpectedBooleanParsing[] tests = new[]
+        {
+            new ExpectedBooleanParsing("!true", "!", true),
+            new ExpectedBooleanParsing("!false", "!", false),
+        };
+        
+        foreach (ExpectedBooleanParsing exp in tests)
+        {
+            Parser parser = new Parser(new Lexer(exp.input));
+            Program program = parser.ParseProgram();
+            
+            Assert.NotNull(program);
+            Assert.Empty(parser.Errors());
+            
+            Assert.Single(program.Statements);
+            
+            Ast.ExpressionStatement expressionStatement = (Ast.ExpressionStatement)program.Statements[0];
+            Ast.PrefixExpression prefixExpression = (Ast.PrefixExpression)expressionStatement.Expression;
+
+            Ast.Boolean boolean = (Boolean)prefixExpression.Right;
+            if (boolean.Value)
+            {
+                Assert.True(boolean.Value);
+            }
+            else
+            {
+                Assert.False(boolean.Value);
+            }
+        }
     }
 
     [Fact]
@@ -52,9 +89,13 @@ public class ParserTest
             new ExpectedPrecendenceParsing("5 < 4 != 3 > 4", "((5 < 4) != (3 > 4))"),
             new ExpectedPrecendenceParsing("3 + 4 * 5 == 3 * 1 + 4 * 5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"),
             new ExpectedPrecendenceParsing("3 + 4 * 5 == 3 * 1 + 4 * 5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"),
+            new ExpectedPrecendenceParsing("true", "true"),
+            new ExpectedPrecendenceParsing("false", "false"),
+            new ExpectedPrecendenceParsing("3 > 5 == false", "((3 > 5) == false)"),
+            new ExpectedPrecendenceParsing("3 < 5 == true", "((3 < 5) == true)"),
         };
 
-        foreach (var test in tests)
+        foreach (ExpectedPrecendenceParsing test in tests)
         {
             Parser parser = new Parser(new Lexer(test.input));
             Program program = parser.ParseProgram();
@@ -185,5 +226,10 @@ let foobar = 838383;
         IntegerLiteral literal = (IntegerLiteral)expression;
         Assert.Equal(literal.Value, integerValue);
         Assert.Equal(literal.TokenLiteral(), integerValue + "");
+    }
+
+    private void testBooleanLiteral(IExpression exp, bool value)
+    {
+        
     }
 }
