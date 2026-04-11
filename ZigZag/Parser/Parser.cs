@@ -157,10 +157,10 @@ public class Parser: BaseParser
         returnStatement.Token = this._currentToken;
         
         this.NextToken();
+
+        returnStatement.ReturnValue = this.ParseExpression(ParsingTokens.LOWEST);
         
-        // TODO: We're skipping the expressions until we
-        // encounter a semicolon
-        while (!this.CurTokenIs(Tokens.SEMICOLON))
+        if (this.peekTokenIs(Tokens.SEMICOLON))
         {
             this.NextToken();
         }
@@ -185,9 +185,11 @@ public class Parser: BaseParser
             return null;
         }
 
-        // TODO: We're skipping the expressions until we
-        // encounter a semicolon
-        while (!this.CurTokenIs(Tokens.SEMICOLON))
+        this.NextToken();
+
+        letStatement.Value = this.ParseExpression(ParsingTokens.LOWEST);
+        
+        if (this.peekTokenIs(Tokens.SEMICOLON))
         {
             this.NextToken();
         }
