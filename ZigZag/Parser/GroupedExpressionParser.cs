@@ -3,7 +3,7 @@ using ZigZag.Token;
 
 namespace ZigZag.Parser;
 
-public class GroupedExpressionParser: IPrefixParser
+public class GroupedExpressionParser: IParser
 {
     public IExpression Parse(Token.Token token, Parser parser)
     {

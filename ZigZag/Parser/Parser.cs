@@ -15,8 +15,8 @@ public class Parser: BaseParser
 
         this.prefixParsers[Tokens.IDENT] = new IdentifierParser();
         this.prefixParsers[Tokens.INT] = new IntegerParser();
-        this.prefixParsers[Tokens.BANG] = new PrefixExpression();
-        this.prefixParsers[Tokens.MINUS] = new PrefixExpression();
+        this.prefixParsers[Tokens.BANG] = new Expression();
+        this.prefixParsers[Tokens.MINUS] = new Expression();
         
         this.prefixParsers[Tokens.IF] = new IfParser();
         
@@ -33,6 +33,8 @@ public class Parser: BaseParser
         this._infixParsers[Tokens.NOT_EQ] = new InfixParser();
         this._infixParsers[Tokens.LT] = new InfixParser();
         this._infixParsers[Tokens.GT] = new InfixParser();
+
+        this.prefixParsers[Tokens.FUNCTION] = new FunctionParser();
     }
 
     public Program ParseProgram()
@@ -60,7 +62,7 @@ public class Parser: BaseParser
             throw new Exception($"No prefix parser for {this._currentToken.Type}");
         }
 
-        IPrefixParser parser = this.prefixParsers[this._currentToken.Type];
+        IParser parser = this.prefixParsers[this._currentToken.Type];
         IExpression leftExp = parser.Parse(this._currentToken, this);
 
         while (!this.peekTokenIs(Tokens.SEMICOLON) && precedence < this.peekPrecendence())

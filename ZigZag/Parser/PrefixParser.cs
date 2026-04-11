@@ -3,7 +3,7 @@ namespace ZigZag.Parser;
 using Token;
 using ZigZag.Ast;
 
-public class PrefixExpression: IPrefixParser
+public class Expression: IParser
 {
     public Token Token { get; set; }
     

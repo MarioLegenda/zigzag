@@ -1,3 +1,5 @@
+using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
+
 namespace ZigZag.Tests;
 
 using ZigZag.Ast;
@@ -20,6 +22,7 @@ class ExpectedPrefixExpression
     }
 }
 
+record ExpectedFunctionLiterals(string input, string expectedParams);
 
 record ExpectedPrecendenceParsing(string input, string expected);
 
@@ -32,6 +35,60 @@ public class ParserTest
     public ParserTest(ITestOutputHelper output)
     {
         _output = output;
+    }
+
+    [Fact]
+    public void TestFunctionLiteralParsing()
+    {
+        string input = "fn(x, y) { x + y; }";
+        
+        Parser parser = new Parser(new Lexer(input));
+        Program program = parser.ParseProgram();
+            
+        Assert.NotNull(program);
+        Assert.Empty(parser.Errors());
+        
+        Ast.ExpressionStatement expressionStatement = (Ast.ExpressionStatement)program.Statements[0];
+        FunctionLiteral fnExpression = (FunctionLiteral)expressionStatement.Expression;
+        Assert.NotNull(fnExpression);
+        
+        Assert.Equal(2, fnExpression.Parameters.Count);
+        
+        Identifier identifierStatement1 = (Identifier)fnExpression.Parameters[0];
+        Assert.Equal("x", identifierStatement1.Value);
+        
+        Identifier identifierStatement2 = (Identifier)fnExpression.Parameters[1];
+        Assert.Equal("y", identifierStatement2.Value);
+
+        Assert.Single(fnExpression.Body.Statements);
+    }
+
+    [Fact]
+    public void TestFunctionParameterParsing()
+    {
+        ExpectedFunctionLiterals[] tests = new[]
+        {
+            new ExpectedFunctionLiterals("fn() {};", ""),
+            new ExpectedFunctionLiterals("fn(x) {};", "x"),
+            new ExpectedFunctionLiterals("fn(x, y, z) {};", "x, y, z"),
+        };
+
+        foreach (var input in tests)
+        {
+            Parser parser = new Parser(new Lexer(input.input));
+            Program program = parser.ParseProgram();
+            
+            Assert.NotNull(program);
+            Assert.Empty(parser.Errors());
+            
+            Ast.ExpressionStatement expressionStatement = (Ast.ExpressionStatement)program.Statements[0];
+            FunctionLiteral fnExpression = (FunctionLiteral)expressionStatement.Expression;
+            
+            string expectedParams = input.expectedParams;
+            string joined = string.Join(", ", fnExpression.Parameters.Select(p => p.TokenLiteral()));
+
+            Assert.Equal(expectedParams, joined);
+        }
     }
 
     [Fact]
@@ -255,10 +312,5 @@ let foobar = 838383;
         IntegerLiteral literal = (IntegerLiteral)expression;
         Assert.Equal(literal.Value, integerValue);
         Assert.Equal(literal.TokenLiteral(), integerValue + "");
-    }
-
-    private void testBooleanLiteral(IExpression exp, bool value)
-    {
-        
     }
 }

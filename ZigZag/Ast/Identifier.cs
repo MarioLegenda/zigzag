@@ -20,8 +20,6 @@ public class Identifier : IExpression
 
     public string String()
     {
-        Console.Write(this.Value);
-
         return this.Value;
     }
 }

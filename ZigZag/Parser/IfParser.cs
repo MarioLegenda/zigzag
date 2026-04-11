@@ -4,7 +4,7 @@ namespace ZigZag.Parser;
 
 using ZigZag.Ast;
 
-public class IfParser: IPrefixParser
+public class IfParser: IParser
 {
     public IExpression Parse(Token.Token token, Parser parser)
     {

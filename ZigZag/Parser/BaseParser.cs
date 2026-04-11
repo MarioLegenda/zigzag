@@ -11,7 +11,7 @@ public abstract class BaseParser
     protected Token _currentToken;
     protected Token _peekToken;
     
-    protected Dictionary<string, IPrefixParser?> prefixParsers = new ();
+    protected Dictionary<string, IParser?> prefixParsers = new ();
     protected Dictionary<string, IInfixParser?> _infixParsers = new();
     
     public void NextToken()
@@ -24,13 +24,18 @@ public abstract class BaseParser
     {
         this.Lexer = lexer;
     }
+
+    public Token CurrentToken()
+    {
+        return this._currentToken;
+    }
     
     public bool CurTokenIs(string token)
     {
         return this._currentToken.Type == token;
     }
     
-    protected bool peekTokenIs(string token)
+    public bool peekTokenIs(string token)
     {
         return this._peekToken.Type == token;
     }

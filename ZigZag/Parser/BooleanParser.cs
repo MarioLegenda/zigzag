@@ -3,7 +3,7 @@ namespace ZigZag.Parser;
 using ZigZag.Ast;
 using ZigZag.Token;
 
-public class BooleanParser: IPrefixParser
+public class BooleanParser: IParser
 {
     public IExpression Parse(Token token, Parser parser)
     {
