@@ -1,6 +1,8 @@
 ﻿using ZigZag.Lexer;
 
 using ZigZag.Parser;
+using ZigZag.Evaluator;
+using ZigZag.Object;
 
 string user = Environment.UserName;
 Console.WriteLine("Hello {0}, this is the ZigZag programming language.", user);
@@ -24,10 +26,9 @@ static void Start(TextReader input, TextWriter output)
         
         Parser p = new Parser(new Lexer(line));
         ZigZag.Ast.Program program = p.ParseProgram();
-        
-        
-        
-        Console.WriteLine(program.String());
+
+        IObject evaluated = new Eval().Evaluate(program);
+        Console.WriteLine(evaluated.Inspect());
     }
 }
 
