@@ -20,6 +20,18 @@ class ExpectedEvalInteger
     }
 }
 
+class ExpectedEvalBangOperator
+{
+    public string input;
+    public bool expected;
+    
+    public ExpectedEvalBangOperator(string type, bool expected)
+    {
+        input = type;
+        this.expected = expected;
+    }
+}
+
 class ExpectedEvalBoolean
 {
     public string input;
@@ -40,6 +52,29 @@ public class EvaluationTest
     public EvaluationTest(ITestOutputHelper output)
     {
         _output = output;
+    }
+    
+    [Fact]
+    public void TestBangOperator()
+    {
+        ExpectedEvalBangOperator[] tests =
+        {
+            new ExpectedEvalBangOperator("!true", false),
+            new ExpectedEvalBangOperator("!false", true),
+            new ExpectedEvalBangOperator("!5", false),
+            new ExpectedEvalBangOperator("!!true", true),
+            new ExpectedEvalBangOperator("!!false", false),
+            new ExpectedEvalBangOperator("!!5", true),
+        };
+
+        foreach (var test in tests)
+        {
+            IObject evaluated = testEval(test.input);
+            Object.Boolean boolean = (Object.Boolean)evaluated;
+            Assert.NotNull(boolean);
+            
+            Assert.Equal(test.expected, boolean.Value);
+        }
     }
 
     [Fact]

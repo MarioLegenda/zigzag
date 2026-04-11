@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices.JavaScript;
+using System.Security.AccessControl;
 
 namespace ZigZag.Evaluator;
 
@@ -17,7 +18,13 @@ public class Eval
         if (node is Ast.Boolean b)
         {
             return new Object.Boolean(b.Value);
-        } 
+        }
+
+        if (node is Ast.PrefixExpression pe)
+        {
+            IObject right = new Eval().Evaluate(pe.Right);
+            return evalPrefixExpression(pe.Operator, right);
+        }
 
         if (node is ExpressionStatement exp && exp.Expression is not null)
         {
@@ -30,6 +37,33 @@ public class Eval
         }
 
         return null;
+    }
+
+    private IObject evalPrefixExpression(string op, IObject right)
+    {
+        switch (op)
+        {
+            case "!":
+                return this.evalBangOperatorExpression(right);
+                break;
+            default:
+                return new Null();
+        }
+    }
+
+    private IObject evalBangOperatorExpression(IObject right)
+    {
+        switch (right.Inspect())
+        {
+            case "true":
+                return new Object.Boolean(false);
+            case "false":
+                return new Object.Boolean(true);
+            case "null":
+                return new Object.Boolean(true);
+            default:
+                return new Object.Boolean(false);
+        }
     }
 
     private IObject evalStatements(IStatement[] stmts)
