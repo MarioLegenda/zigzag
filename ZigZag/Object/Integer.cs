@@ -2,16 +2,16 @@ namespace ZigZag.Object;
 
 public class Integer: IObject
 {
-    private int _value;
+    public int Value { get; set; }
 
     public Integer(int value)
     {
-        this._value = value;
+        this.Value = value;
     }
-    
+
     public string Inspect()
     {
-        return "" + this._value;
+        return "" + this.Value;
     }
 
     public ObjectTypeEnum Type()

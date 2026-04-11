@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace ZigZag.Tests;
 
 using ZigZag.Token;

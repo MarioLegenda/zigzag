@@ -1,5 +1,3 @@
-using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
-
 namespace ZigZag.Tests;
 
 using ZigZag.Ast;
