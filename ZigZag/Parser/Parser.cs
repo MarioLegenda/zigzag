@@ -18,6 +18,8 @@ public class Parser: BaseParser
         this.prefixParsers[Tokens.BANG] = new PrefixExpression();
         this.prefixParsers[Tokens.MINUS] = new PrefixExpression();
         
+        this.prefixParsers[Tokens.IF] = new IfParser();
+        
         this.prefixParsers[Tokens.LPAREN] = new GroupedExpressionParser();
         
         this.prefixParsers[Tokens.TRUE] = new BooleanParser();
@@ -76,6 +78,27 @@ public class Parser: BaseParser
         }
 
         return leftExp;
+    }
+
+    public BlockStatement ParseBlockStatement()
+    {
+        BlockStatement blockStatement = new BlockStatement();
+        blockStatement.Token = this._currentToken;
+        
+        this.NextToken();
+
+        while (!this.CurTokenIs(Tokens.RBRACE) && !this.CurTokenIs(Tokens.EOF))
+        {
+            IStatement? stmt = this.parseStatement();
+            if (stmt != null)
+            {
+                blockStatement.Statements.Add(stmt);
+            }
+            
+            this.NextToken();
+        }
+
+        return blockStatement;
     }
 
     private IStatement? parseStatement()

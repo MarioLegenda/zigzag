@@ -25,6 +25,8 @@ static void Start(TextReader input, TextWriter output)
         Parser p = new Parser(new Lexer(line));
         ZigZag.Ast.Program program = p.ParseProgram();
         
+        
+        
         Console.WriteLine(program.String());
     }
 }

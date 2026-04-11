@@ -1,6 +1,3 @@
-
-using Xunit.Sdk;
-
 namespace ZigZag.Tests;
 
 using ZigZag.Ast;
@@ -35,6 +32,34 @@ public class ParserTest
     public ParserTest(ITestOutputHelper output)
     {
         _output = output;
+    }
+
+    [Fact]
+    public void TestIfExpressions()
+    {
+        string input = "if (x < y) { x }";
+        
+        Parser parser = new Parser(new Lexer(input));
+        Program program = parser.ParseProgram();
+            
+        Assert.NotNull(program);
+        Assert.Empty(parser.Errors());
+        
+        Assert.Single(program.Statements);
+        
+        Ast.ExpressionStatement expressionStatement = (Ast.ExpressionStatement)program.Statements[0];
+        IfExpression ifExpression = (IfExpression)expressionStatement.Expression;
+
+        InfixExpression condition = (InfixExpression)ifExpression.Condition;
+        Assert.Equal("<", condition.Operator);
+        Identifier xIdentifier = (Identifier)condition.Left;
+        Assert.Equal("x", xIdentifier.TokenLiteral());
+        Identifier yIdentifier = (Identifier)condition.Right;
+        Assert.Equal("y", yIdentifier.TokenLiteral());
+
+        Assert.Single(ifExpression.Consequence.Statements);
+        ExpressionStatement consequenceExpression1 = (ExpressionStatement)ifExpression.Consequence.Statements[0];
+        Assert.Equal("x", consequenceExpression1.TokenLiteral());
     }
 
     [Fact]
