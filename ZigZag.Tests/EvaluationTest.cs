@@ -7,17 +7,31 @@ using Parser;
 using Object;
 using Xunit;
 using Xunit.Abstractions;
-class ExpectedEval
+
+class ExpectedEvalInteger
 {
     public string input;
     public int expected;
     
-    public ExpectedEval(string type, int expected)
+    public ExpectedEvalInteger(string type, int expected)
     {
         input = type;
         this.expected = expected;
     }
 }
+
+class ExpectedEvalBoolean
+{
+    public string input;
+    public bool expected;
+    
+    public ExpectedEvalBoolean(string type, bool expected)
+    {
+        input = type;
+        this.expected = expected;
+    }
+}
+
 
 public class EvaluationTest
 {
@@ -31,10 +45,10 @@ public class EvaluationTest
     [Fact]
     public void TestEvalIntegerExpression()
     {
-        ExpectedEval[] tests =
+        ExpectedEvalInteger[] tests =
         {
-            new ExpectedEval("5", 5),
-            new ExpectedEval("10", 10),
+            new ExpectedEvalInteger("5", 5),
+            new ExpectedEvalInteger("10", 10),
         };
 
         foreach (var test in tests)
@@ -44,6 +58,25 @@ public class EvaluationTest
             Assert.NotNull(integer);
             
             Assert.Equal(test.expected, integer.Value);
+        }
+    }
+    
+    [Fact]
+    public void TestEvalBooleanExpression()
+    {
+        ExpectedEvalBoolean[] tests =
+        {
+            new ExpectedEvalBoolean("true", true),
+            new ExpectedEvalBoolean("false", false),
+        };
+
+        foreach (var test in tests)
+        {
+            IObject evaluated = testEval(test.input);
+            Object.Boolean boolean = (Object.Boolean)evaluated;
+            Assert.NotNull(boolean);
+            
+            Assert.Equal(test.expected, boolean.Value);
         }
     }
 

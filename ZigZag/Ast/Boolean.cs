@@ -5,6 +5,7 @@ using Token;
 public class Boolean: IExpression
 {
     public Token Token { get; set; }
+    
     public bool Value;
 
     public string String()

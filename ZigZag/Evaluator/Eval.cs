@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices.JavaScript;
+
 namespace ZigZag.Evaluator;
 
 using Object;
@@ -11,6 +13,11 @@ public class Eval
         {
             return evalStatements(p.Statements.ToArray());
         }
+
+        if (node is Ast.Boolean b)
+        {
+            return new Object.Boolean(b.Value);
+        } 
 
         if (node is ExpressionStatement exp && exp.Expression is not null)
         {

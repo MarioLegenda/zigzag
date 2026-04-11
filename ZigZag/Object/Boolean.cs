@@ -2,16 +2,16 @@ namespace ZigZag.Object;
 
 public class Boolean: IObject
 {
-    private bool _value;
+    public bool Value { set; get; }
 
     public Boolean(bool value)
     {
-        this._value = value;
+        this.Value = value;
     }
     
     public string Inspect()
     {
-        throw new NotImplementedException();
+        return this.Value == true ? "true" : "false";
     }
 
     public ObjectTypeEnum Type()
