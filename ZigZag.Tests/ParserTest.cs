@@ -38,6 +38,34 @@ public class ParserTest
     }
 
     [Fact]
+    public void TestCallExpressionParsing()
+    {
+        string input = "add(1, 2 * 3, 4 + 5);";
+        
+        Parser parser = new Parser(new Lexer(input));
+        Program program = parser.ParseProgram();
+        
+        Assert.NotNull(program);
+        Assert.Empty(parser.Errors());
+        
+        Ast.ExpressionStatement expressionStatement = (Ast.ExpressionStatement)program.Statements[0];
+        CallExpression callExpression = (CallExpression)expressionStatement.Expression;
+        Assert.NotNull(callExpression);
+        
+        Identifier identifier = (Identifier)callExpression.Function;
+        
+        Assert.Equal("add", identifier.Value);
+        Assert.Equal("add", identifier.TokenLiteral());
+        
+        Assert.Equal(3, callExpression.Arguments.Count);
+
+        testIntegerLiteral(callExpression.Arguments[0], 1);
+
+        testInfixExpression(callExpression.Arguments[1], "*", 2, 3);
+        testInfixExpression(callExpression.Arguments[2], "+", 4, 5);
+    }
+
+    [Fact]
     public void TestFunctionLiteralParsing()
     {
         string input = "fn(x, y) { x + y; }";
@@ -61,6 +89,8 @@ public class ParserTest
         Assert.Equal("y", identifierStatement2.Value);
 
         Assert.Single(fnExpression.Body.Statements);
+        
+        _output.WriteLine(fnExpression.Body.String());
     }
 
     [Fact]
@@ -179,6 +209,9 @@ public class ParserTest
             new ExpectedPrecendenceParsing("(5 + 5) * 2", "((5 + 5) * 2)"),
             new ExpectedPrecendenceParsing("-(5 + 5)", "(-(5 + 5))"),
             new ExpectedPrecendenceParsing("!(true == true)", "(!(true == true))"),
+            new ExpectedPrecendenceParsing("a + add(b * c) + d", "((a + add((b * c))) + d)"),
+            new ExpectedPrecendenceParsing("add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))", "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))"),
+            new ExpectedPrecendenceParsing("add(a + b + c * d / f + g)", "add((((a + b) + ((c * d) / f)) + g))"),
         };
 
         foreach (ExpectedPrecendenceParsing test in tests)
@@ -312,5 +345,16 @@ let foobar = 838383;
         IntegerLiteral literal = (IntegerLiteral)expression;
         Assert.Equal(literal.Value, integerValue);
         Assert.Equal(literal.TokenLiteral(), integerValue + "");
+    }
+
+    private void testInfixExpression(IExpression exp, string op, int left, int right)
+    {
+        InfixExpression infixExpression = (InfixExpression)exp;
+        Assert.NotNull(infixExpression);
+        
+        Assert.Equal(infixExpression.Operator, op);
+        
+        testIntegerLiteral(infixExpression.Right, right);
+        testIntegerLiteral(infixExpression.Left, left);
     }
 }

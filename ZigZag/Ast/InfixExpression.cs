@@ -6,8 +6,11 @@ using Token;
 public class InfixExpression: IExpression
 {        
     public Token Token { get; set; }
+    
     public IExpression Left { get; set; }
+    
     public string Operator;
+    
     public IExpression Right { get; set; }
 
     public string String()

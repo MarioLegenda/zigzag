@@ -33,6 +33,7 @@ public class Parser: BaseParser
         this._infixParsers[Tokens.NOT_EQ] = new InfixParser();
         this._infixParsers[Tokens.LT] = new InfixParser();
         this._infixParsers[Tokens.GT] = new InfixParser();
+        this._infixParsers[Tokens.LPAREN] = new CallExpressionParser();
 
         this.prefixParsers[Tokens.FUNCTION] = new FunctionParser();
     }

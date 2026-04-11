@@ -15,6 +15,7 @@ class Precendences
         { Tokens.PLUS, ParsingTokens.SUM },
         { Tokens.MINUS, ParsingTokens.SUM },
         { Tokens.SLASH, ParsingTokens.PRODUCT },
-        { Tokens.ASTERIX, ParsingTokens.PRODUCT }
+        { Tokens.ASTERIX, ParsingTokens.PRODUCT },
+        { Tokens.LPAREN, ParsingTokens.CALL }
     };
 }
