@@ -19,6 +19,11 @@ public class Eval
         if (node is ReturnStatement rt)
         {
             IObject val = new Eval().Evaluate(rt.ReturnValue);
+            if (isError(val))
+            {
+                return val;
+            }
+            
             return new Object.ReturnValue(val);
         }
 
@@ -40,6 +45,11 @@ public class Eval
         if (node is PrefixExpression pe)
         {
             IObject? right = new Eval().Evaluate(pe.Right);
+            if (isError(right))
+            {
+                return right;
+            }
+            
             if (right != null)
             {
                 return evalPrefixExpression(pe.Operator, right);
@@ -49,7 +59,16 @@ public class Eval
         if (node is InfixExpression ife)
         {
             IObject? left = new Eval().Evaluate(ife.Left);
+            if (isError(left))
+            {
+                return left;
+            }
+            
             IObject? right = new Eval().Evaluate(ife.Right);
+            if (isError(right))
+            {
+                return right;
+            }
 
             if (left != null && right != null)
             {            
@@ -73,6 +92,10 @@ public class Eval
     private IObject evalIfExpression(Ast.IfExpression ifexp)
     {
         IObject? condition = new Eval().Evaluate(ifexp.Condition);
+        if (condition is not null && isError(condition))
+        {
+            return condition;
+        }
 
         if (isTruthy(condition))
         {
@@ -125,7 +148,8 @@ public class Eval
             case "-":
                 return this.evalMinusPrefixOperatorExpression(right);
             default:
-                return new Null();
+                return newError("unknown operator: {0}{1}", op, right.Type());
+            
         }
     }
 
@@ -133,7 +157,7 @@ public class Eval
     {
         if (right.Type() != ObjectTypeEnum.INTEGER_OBJ)
         {
-            return new Null();
+            return newError("unknown operator: -{0}", right.Type());
         }
 
         Integer value = (Integer)right;
@@ -157,6 +181,11 @@ public class Eval
 
     private IObject evalInfixExpression(string op, IObject left, IObject right)
     {
+        if (left.Type() != right.Type())
+        {
+            return newError("type mismatch: {0} {1} {2}", left.Type(), op, right.Type());
+        }
+        
         if (left.Type() == ObjectTypeEnum.INTEGER_OBJ && right.Type() == ObjectTypeEnum.INTEGER_OBJ)
         {
             return evalIntegerInfixExpression(op, left, right);
@@ -190,7 +219,7 @@ public class Eval
             return nativeBoolToBooleanObject(l.Value != r.Value);
         }
 
-        return new Null();
+        return newError("unknown operator: {0} {1} {2}", left.Type(), op, right.Type());
     }
 
     private IObject evalIntegerInfixExpression(string op, IObject left, IObject right)
@@ -217,7 +246,7 @@ public class Eval
             case "/":
                 return new Integer(l.Value / r.Value);
             default:
-                return new Null();
+                return newError("unknown operator: {0} {1} {2}", left.Type(), op, right.Type());
         }
     }
 
@@ -242,6 +271,11 @@ public class Eval
             {
                 return rt.Value;
             }
+
+            if (result is Object.Error e)
+            {
+                return result;
+            }
         }
 
         return result;
@@ -254,12 +288,27 @@ public class Eval
         {
             result = new Eval().Evaluate(stmt);
 
-            if (result != null && result.Type() == ObjectTypeEnum.RETURN_VALUE_OBJ)
+            if (result != null && result.Type() == ObjectTypeEnum.RETURN_VALUE_OBJ || result.Type() == ObjectTypeEnum.ERROR_OBJ)
             {
                 return result;
             }
         }
 
         return result;
+    }
+
+    private Error newError(string format, params object[] args)
+    {
+        return new Error(format, args);
+    }
+
+    private bool isError(IObject? obj)
+    {
+        if (obj != null)
+        {
+            return obj.Type() == ObjectTypeEnum.ERROR_OBJ;
+        }
+
+        return false;
     }
 }

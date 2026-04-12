@@ -30,6 +30,35 @@ public class EvaluationTest
     }
 
     [Fact]
+    public void TestErrorHandling()
+    {
+        Expected<string>[] tests =
+        {
+            new Expected<string>("5 + true;", "type mismatch: INTEGER_OBJ + BOOLEAN_OBJ"),
+            new Expected<string>("5 + true; 5;", "type mismatch: INTEGER_OBJ + BOOLEAN_OBJ"),
+            new Expected<string>("-true", "unknown operator: -BOOLEAN_OBJ"),
+            new Expected<string>("true + false;", "unknown operator: BOOLEAN_OBJ + BOOLEAN_OBJ"),
+            new Expected<string>("5; true + false; 5", "unknown operator: BOOLEAN_OBJ + BOOLEAN_OBJ"),
+            new Expected<string>("if (10 > 1) { true + false; }", "unknown operator: BOOLEAN_OBJ + BOOLEAN_OBJ"),
+            new Expected<string>(@"if (10 > 1) {
+if (10 > 1) {
+return true + false;
+}
+return 1;
+}", "unknown operator: BOOLEAN_OBJ + BOOLEAN_OBJ"),
+        };
+        
+        foreach (var test in tests)
+        {
+            IObject evaluated = testEval(test.input);
+            Error err = (Error)evaluated;
+            Assert.NotNull(err);
+            
+            Assert.Equal(err.Message, test.expected);
+        }
+    }
+
+    [Fact]
     public void TestReturnStatements()
     {
         Expected<int>[] tests =

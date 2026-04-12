@@ -6,4 +6,5 @@ public enum ObjectTypeEnum
     BOOLEAN_OBJ,
     NULL_OBJ,
     RETURN_VALUE_OBJ,
+    ERROR_OBJ,
 }
