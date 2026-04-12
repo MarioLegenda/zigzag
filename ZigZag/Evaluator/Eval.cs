@@ -9,11 +9,17 @@ using Ast;
 
 public class Eval
 {
-    public IObject Evaluate(INode node)
+    public IObject? Evaluate(INode node)
     {
         if (node is Program p)
         {
-            return evalStatements(p.Statements);
+            return evalProgram(p.Statements);
+        }
+
+        if (node is ReturnStatement rt)
+        {
+            IObject val = new Eval().Evaluate(rt.ReturnValue);
+            return new Object.ReturnValue(val);
         }
 
         if (node is Ast.Boolean b)
@@ -23,7 +29,7 @@ public class Eval
 
         if (node is Ast.BlockStatement bl)
         {
-            return evalStatements(bl.Statements);
+            return evalBlockStatement(bl.Statements);
         }
 
         if (node is Ast.IfExpression ifexp)
@@ -33,16 +39,22 @@ public class Eval
 
         if (node is PrefixExpression pe)
         {
-            IObject right = new Eval().Evaluate(pe.Right);
-            return evalPrefixExpression(pe.Operator, right);
+            IObject? right = new Eval().Evaluate(pe.Right);
+            if (right != null)
+            {
+                return evalPrefixExpression(pe.Operator, right);
+            }
         }
 
         if (node is InfixExpression ife)
         {
-            IObject left = new Eval().Evaluate(ife.Left);
-            IObject right = new Eval().Evaluate(ife.Right);
+            IObject? left = new Eval().Evaluate(ife.Left);
+            IObject? right = new Eval().Evaluate(ife.Right);
 
-            return evalInfixExpression(ife.Operator, left, right);
+            if (left != null && right != null)
+            {            
+                return evalInfixExpression(ife.Operator, left, right);
+            }
         }
 
         if (node is ExpressionStatement exp && exp.Expression is not null)
@@ -60,7 +72,7 @@ public class Eval
 
     private IObject evalIfExpression(Ast.IfExpression ifexp)
     {
-        IObject condition = new Eval().Evaluate(ifexp.Condition);
+        IObject? condition = new Eval().Evaluate(ifexp.Condition);
 
         if (isTruthy(condition))
         {
@@ -76,8 +88,13 @@ public class Eval
         }
     }
 
-    private bool isTruthy(IObject obj)
+    private bool isTruthy(IObject? obj)
     {
+        if (obj is null)
+        {
+            return false;
+        }
+        
         if (obj.Type() == ObjectTypeEnum.BOOLEAN_OBJ)
         {
             Object.Boolean b = (Object.Boolean)obj;
@@ -214,12 +231,33 @@ public class Eval
         return new Object.Boolean(false);
     }
 
-    private IObject evalStatements(List<IStatement> stmts)
+    private IObject evalProgram(List<IStatement> stmts)
     {
         IObject result = null;
         foreach (var stmt in stmts)
         {
             result = new Eval().Evaluate(stmt);
+
+            if (result is Object.ReturnValue rt)
+            {
+                return rt.Value;
+            }
+        }
+
+        return result;
+    }
+
+    public IObject evalBlockStatement(List<IStatement> stmts)
+    {
+        IObject result = null;
+        foreach (var stmt in stmts)
+        {
+            result = new Eval().Evaluate(stmt);
+
+            if (result != null && result.Type() == ObjectTypeEnum.RETURN_VALUE_OBJ)
+            {
+                return result;
+            }
         }
 
         return result;

@@ -30,6 +30,34 @@ public class EvaluationTest
     }
 
     [Fact]
+    public void TestReturnStatements()
+    {
+        Expected<int>[] tests =
+        {
+            new Expected<int>("return 10;", 10),
+            new Expected<int>("return 10; 9;", 10),
+            new Expected<int>("return 2 * 5; 9;", 10),
+            new Expected<int>("9; return 2 * 5; 9;", 10),
+            new Expected<int>(@"
+if (10 > 1) {
+    if (10 > 1) {
+        return 10;
+    }
+return 1;
+}", 10),
+        };
+        
+        foreach (var test in tests)
+        {
+            IObject evaluated = testEval(test.input);
+            Integer integer = (Integer)evaluated;
+            Assert.NotNull(integer);
+            
+            Assert.Equal(test.expected, integer.Value);
+        }
+    }
+
+    [Fact]
     public void TestIfElseExpressions()
     {
         Expected<int?>[] tests =
