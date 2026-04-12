@@ -13,12 +13,22 @@ public class Eval
     {
         if (node is Program p)
         {
-            return evalStatements(p.Statements.ToArray());
+            return evalStatements(p.Statements);
         }
 
         if (node is Ast.Boolean b)
         {
             return new Object.Boolean(b.Value);
+        }
+
+        if (node is Ast.BlockStatement bl)
+        {
+            return evalStatements(bl.Statements);
+        }
+
+        if (node is Ast.IfExpression ifexp)
+        {
+            return evalIfExpression(ifexp);
         }
 
         if (node is PrefixExpression pe)
@@ -46,6 +56,47 @@ public class Eval
         }
 
         return null;
+    }
+
+    private IObject evalIfExpression(Ast.IfExpression ifexp)
+    {
+        IObject condition = new Eval().Evaluate(ifexp.Condition);
+
+        if (isTruthy(condition))
+        {
+            return new Eval().Evaluate(ifexp.Consequence);
+        }
+        else if (ifexp.Alternative != null)
+        {
+            return new Eval().Evaluate(ifexp.Alternative);
+        }
+        else
+        {
+            return new Null();
+        }
+    }
+
+    private bool isTruthy(IObject obj)
+    {
+        if (obj.Type() == ObjectTypeEnum.BOOLEAN_OBJ)
+        {
+            Object.Boolean b = (Object.Boolean)obj;
+            if (b.Value)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        if (obj.Type() == ObjectTypeEnum.NULL_OBJ)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private IObject evalPrefixExpression(string op, IObject right)
@@ -163,7 +214,7 @@ public class Eval
         return new Object.Boolean(false);
     }
 
-    private IObject evalStatements(IStatement[] stmts)
+    private IObject evalStatements(List<IStatement> stmts)
     {
         IObject result = null;
         foreach (var stmt in stmts)

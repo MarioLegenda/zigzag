@@ -6,7 +6,7 @@ using ZigZag.Ast;
 
 public class IfParser: IParser
 {
-    public IExpression Parse(Token.Token token, Parser parser)
+    public IExpression? Parse(Token.Token token, Parser parser)
     {
         IfExpression exp = new IfExpression();
         exp.Token = token;
@@ -30,6 +30,18 @@ public class IfParser: IParser
         }
 
         exp.Consequence = parser.ParseBlockStatement();
+
+        if (parser.peekTokenIs(Tokens.ELSE))
+        {
+            parser.NextToken();
+
+            if (!parser.expectPeek(Tokens.LBRACE))
+            {
+                return null;
+            }
+            
+            exp.Alternative = parser.ParseBlockStatement();
+        }
 
         return exp;
     }

@@ -8,42 +8,17 @@ using Object;
 using Xunit;
 using Xunit.Abstractions;
 
-class ExpectedEvalInteger
+class Expected<T>
 {
     public string input;
-    public int expected;
+    public T expected;
     
-    public ExpectedEvalInteger(string type, int expected)
+    public Expected(string type, T expected)
     {
         input = type;
         this.expected = expected;
     }
 }
-
-class ExpectedEvalBangOperator
-{
-    public string input;
-    public bool expected;
-    
-    public ExpectedEvalBangOperator(string type, bool expected)
-    {
-        input = type;
-        this.expected = expected;
-    }
-}
-
-class ExpectedEvalBoolean
-{
-    public string input;
-    public bool expected;
-    
-    public ExpectedEvalBoolean(string type, bool expected)
-    {
-        input = type;
-        this.expected = expected;
-    }
-}
-
 
 public class EvaluationTest
 {
@@ -53,50 +28,78 @@ public class EvaluationTest
     {
         _output = output;
     }
+
+    [Fact]
+    public void TestIfElseExpressions()
+    {
+        Expected<int?>[] tests =
+        {
+            new Expected<int?>("if (true) { 10 }", 10),
+            new Expected<int?>("if (false) { 10 }", null),
+            new Expected<int?>("if (1 > 2) { 10 }", null),
+            new Expected<int?>("if (1) { 10 }", 10),
+            new Expected<int?>("if (1 < 2) { 10 }", 10),
+            new Expected<int?>("if (1 > 2) { 10 } else { 20 }", 20),
+            new Expected<int?>("if (1 < 2) { 10 } else { 20 }", 10),
+        };
+        
+        foreach (var test in tests)
+        {
+            IObject evaluated = testEval(test.input);
+            if (evaluated is Integer it)
+            {
+                _output.WriteLine("is integer");
+                Integer integer = (Integer)evaluated;
+                Assert.NotNull(integer);
+            
+                Assert.Equal(test.expected, integer.Value);
+            }
+            else
+            {
+                Assert.Equal("null", evaluated.Inspect());
+            }
+        }
+    }
     
     [Fact]
     public void TestBangOperator()
     {
-        ExpectedEvalBangOperator[] tests =
+        Expected<bool>[] tests =
         {
-            new ExpectedEvalBangOperator("!true", false),
-            new ExpectedEvalBangOperator("!false", true),
-            new ExpectedEvalBangOperator("!5", false),
-            new ExpectedEvalBangOperator("!!true", true),
-            new ExpectedEvalBangOperator("!!false", false),
-            new ExpectedEvalBangOperator("!!5", true),
+            new Expected<bool>("!true", false),
+            new Expected<bool>("!false", true),
+            new Expected<bool>("!5", false),
+            new Expected<bool>("!!true", true),
+            new Expected<bool>("!!false", false),
+            new Expected<bool>("!!5", true),
         };
 
         foreach (var test in tests)
         {
             IObject evaluated = testEval(test.input);
-            Object.Boolean boolean = (Object.Boolean)evaluated;
-            Assert.NotNull(boolean);
-            
-            Assert.Equal(test.expected, boolean.Value);
         }
     }
 
     [Fact]
     public void TestEvalIntegerExpression()
     {
-        ExpectedEvalInteger[] tests =
+        Expected<int>[] tests =
         {
-            new ExpectedEvalInteger("5", 5),
-            new ExpectedEvalInteger("10", 10),
-            new ExpectedEvalInteger("-5", -5),
-            new ExpectedEvalInteger("-10", -10),
-            new ExpectedEvalInteger("5 + 5 + 5 + 5 - 10", 10),
-            new ExpectedEvalInteger("2 * 2 * 2 * 2 * 2", 32),
-            new ExpectedEvalInteger("-50 + 100 + -50", 0),
-            new ExpectedEvalInteger("5 * 2 + 10", 20),
-            new ExpectedEvalInteger("5 + 2 * 10", 25),
-            new ExpectedEvalInteger("20 + 2 * -10", 0),
-            new ExpectedEvalInteger("50 / 2 * 2 + 10", 60),
-            new ExpectedEvalInteger("2 * (5 + 10)", 30),
-            new ExpectedEvalInteger("3 * 3 * 3 + 10", 37),
-            new ExpectedEvalInteger("3 * (3 * 3) + 10", 37),
-            new ExpectedEvalInteger("(5 + 10 * 2 + 15 / 3) * 2 + -10", 50),
+            new Expected<int>("5", 5),
+            new Expected<int>("10", 10),
+            new Expected<int>("-5", -5),
+            new Expected<int>("-10", -10),
+            new Expected<int>("5 + 5 + 5 + 5 - 10", 10),
+            new Expected<int>("2 * 2 * 2 * 2 * 2", 32),
+            new Expected<int>("-50 + 100 + -50", 0),
+            new Expected<int>("5 * 2 + 10", 20),
+            new Expected<int>("5 + 2 * 10", 25),
+            new Expected<int>("20 + 2 * -10", 0),
+            new Expected<int>("50 / 2 * 2 + 10", 60),
+            new Expected<int>("2 * (5 + 10)", 30),
+            new Expected<int>("3 * 3 * 3 + 10", 37),
+            new Expected<int>("3 * (3 * 3) + 10", 37),
+            new Expected<int>("(5 + 10 * 2 + 15 / 3) * 2 + -10", 50),
         };
 
         foreach (var test in tests)
@@ -112,29 +115,29 @@ public class EvaluationTest
     [Fact]
     public void TestEvalBooleanExpression()
     {
-        ExpectedEvalBoolean[] tests =
+        Expected<bool>[] tests =
         {
-            new ExpectedEvalBoolean("true", true),
-            new ExpectedEvalBoolean("false", false),
-            new ExpectedEvalBoolean("1 < 2", true),
-            new ExpectedEvalBoolean("1 > 2", false),
-            new ExpectedEvalBoolean("1 < 1", false),
-            new ExpectedEvalBoolean("1 > 1", false),
-            new ExpectedEvalBoolean("1 > 1", false),
-            new ExpectedEvalBoolean("1 == 1", true),
-            new ExpectedEvalBoolean("1 != 1", false),
-            new ExpectedEvalBoolean("1 == 2", false),
-            new ExpectedEvalBoolean("1 != 2", true),
+            new Expected<bool>("true", true),
+            new Expected<bool>("false", false),
+            new Expected<bool>("1 < 2", true),
+            new Expected<bool>("1 > 2", false),
+            new Expected<bool>("1 < 1", false),
+            new Expected<bool>("1 > 1", false),
+            new Expected<bool>("1 > 1", false),
+            new Expected<bool>("1 == 1", true),
+            new Expected<bool>("1 != 1", false),
+            new Expected<bool>("1 == 2", false),
+            new Expected<bool>("1 != 2", true),
             
-            new ExpectedEvalBoolean("true == true", true),
-            new ExpectedEvalBoolean("false == false", true),
-            new ExpectedEvalBoolean("true == false", false),
-            new ExpectedEvalBoolean("true != false", true),
-            new ExpectedEvalBoolean("false != true", true),
-            new ExpectedEvalBoolean("(1 < 2) == true", true),
-            new ExpectedEvalBoolean("(1 < 2) == false", false),
-            new ExpectedEvalBoolean("(1 > 2) == true", false),
-            new ExpectedEvalBoolean("(1 > 2) == false", true),
+            new Expected<bool>("true == true", true),
+            new Expected<bool>("false == false", true),
+            new Expected<bool>("true == false", false),
+            new Expected<bool>("true != false", true),
+            new Expected<bool>("false != true", true),
+            new Expected<bool>("(1 < 2) == true", true),
+            new Expected<bool>("(1 < 2) == false", false),
+            new Expected<bool>("(1 > 2) == true", false),
+            new Expected<bool>("(1 > 2) == false", true),
         };
 
         foreach (var test in tests)
