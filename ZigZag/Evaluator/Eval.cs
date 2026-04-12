@@ -16,6 +16,14 @@ public class Eval
             return evalProgram(p.Statements, env);
         }
 
+        if (node is FunctionLiteral fn)
+        {
+            List<Identifier> parameters = fn.Parameters;
+            BlockStatement body = fn.Body;
+
+            return new Function(parameters, body, env);
+        }
+
         if (node is Identifier id)
         {
             return evalIdentifier(id, env);

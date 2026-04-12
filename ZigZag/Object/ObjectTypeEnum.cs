@@ -7,4 +7,5 @@ public enum ObjectTypeEnum
     NULL_OBJ,
     RETURN_VALUE_OBJ,
     ERROR_OBJ,
+    FUNCTION_OBJ,
 }

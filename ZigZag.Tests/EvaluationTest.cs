@@ -30,6 +30,23 @@ public class EvaluationTest
     }
 
     [Fact]
+    public void TestFunctionObject()
+    {
+        string input = "fn(x) { x + 2; };";
+
+        IObject evaluated = testEval(input);
+        Function fn = (Function)evaluated;
+        Assert.NotNull(fn);
+        
+        Assert.Single(fn.Parameters);
+        Assert.Equal("x", fn.Parameters[0].String());
+
+        string expectedBody = "(x + 2)";
+        
+        Assert.Equal(expectedBody, fn.Body.String());
+    }
+
+    [Fact]
     public void TestErrorHandling()
     {
         Expected<string>[] tests =
