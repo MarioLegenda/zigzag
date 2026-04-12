@@ -1,3 +1,6 @@
+using System.Xml.Xsl;
+using ZigZag.Parser;
+
 namespace ZigZag.Evaluator;
 
 using Object;
@@ -21,6 +24,14 @@ public class Eval
         {
             IObject right = new Eval().Evaluate(pe.Right);
             return evalPrefixExpression(pe.Operator, right);
+        }
+
+        if (node is InfixExpression ife)
+        {
+            IObject left = new Eval().Evaluate(ife.Left);
+            IObject right = new Eval().Evaluate(ife.Right);
+
+            return evalInfixExpression(ife.Operator, left, right);
         }
 
         if (node is ExpressionStatement exp && exp.Expression is not null)
@@ -72,6 +83,36 @@ public class Eval
                 return new Object.Boolean(true);
             default:
                 return new Object.Boolean(false);
+        }
+    }
+
+    private IObject evalInfixExpression(string op, IObject left, IObject right)
+    {
+        if (left.Type() == ObjectTypeEnum.INTEGER_OBJ && right.Type() == ObjectTypeEnum.INTEGER_OBJ)
+        {
+            return evalIntegerInfixExpression(op, left, right);
+        }
+
+        return new Null();
+    }
+
+    private IObject evalIntegerInfixExpression(string op, IObject left, IObject right)
+    {
+        Integer l = (Integer)left;
+        Integer r = (Integer)right;
+
+        switch (op)
+        {
+            case "+":
+                return new Integer(l.Value + r.Value);
+            case "-":
+                return new Integer(l.Value - r.Value);
+            case "*":
+                return new Integer(l.Value * r.Value);
+            case "/":
+                return new Integer(l.Value / r.Value);
+            default:
+                return new Null();
         }
     }
 
