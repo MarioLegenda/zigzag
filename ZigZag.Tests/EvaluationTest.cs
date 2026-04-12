@@ -84,6 +84,8 @@ public class EvaluationTest
         {
             new ExpectedEvalInteger("5", 5),
             new ExpectedEvalInteger("10", 10),
+            new ExpectedEvalInteger("-5", -5),
+            new ExpectedEvalInteger("-10", -10),
         };
 
         foreach (var test in tests)

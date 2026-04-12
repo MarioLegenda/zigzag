@@ -1,6 +1,3 @@
-using System.Runtime.InteropServices.JavaScript;
-using System.Security.AccessControl;
-
 namespace ZigZag.Evaluator;
 
 using Object;
@@ -20,7 +17,7 @@ public class Eval
             return new Object.Boolean(b.Value);
         }
 
-        if (node is Ast.PrefixExpression pe)
+        if (node is PrefixExpression pe)
         {
             IObject right = new Eval().Evaluate(pe.Right);
             return evalPrefixExpression(pe.Operator, right);
@@ -45,10 +42,22 @@ public class Eval
         {
             case "!":
                 return this.evalBangOperatorExpression(right);
-                break;
+            case "-":
+                return this.evalMinusPrefixOperatorExpression(right);
             default:
                 return new Null();
         }
+    }
+
+    private IObject evalMinusPrefixOperatorExpression(IObject right)
+    {
+        if (right.Type() != ObjectTypeEnum.INTEGER_OBJ)
+        {
+            return new Null();
+        }
+
+        Integer value = (Integer)right;
+        return new Integer(-value.Value);
     }
 
     private IObject evalBangOperatorExpression(IObject right)

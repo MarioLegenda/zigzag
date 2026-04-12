@@ -2,7 +2,7 @@ namespace ZigZag.Object;
 
 public class Integer: IObject
 {
-    public int Value { get; set; }
+    public int Value { get; }
 
     public Integer(int value)
     {
