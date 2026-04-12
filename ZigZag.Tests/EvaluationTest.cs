@@ -116,6 +116,15 @@ public class EvaluationTest
         {
             new ExpectedEvalBoolean("true", true),
             new ExpectedEvalBoolean("false", false),
+            new ExpectedEvalBoolean("1 < 2", true),
+            new ExpectedEvalBoolean("1 > 2", false),
+            new ExpectedEvalBoolean("1 < 1", false),
+            new ExpectedEvalBoolean("1 > 1", false),
+            new ExpectedEvalBoolean("1 > 1", false),
+            new ExpectedEvalBoolean("1 == 1", true),
+            new ExpectedEvalBoolean("1 != 1", false),
+            new ExpectedEvalBoolean("1 == 2", false),
+            new ExpectedEvalBoolean("1 != 2", true),
         };
 
         foreach (var test in tests)

@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices.JavaScript;
 using System.Xml.Xsl;
 using ZigZag.Parser;
 
@@ -103,6 +104,14 @@ public class Eval
 
         switch (op)
         {
+            case "<":
+                return nativeBoolToBooleanObject(l.Value < r.Value);
+            case ">":
+                return nativeBoolToBooleanObject(l.Value > r.Value);
+            case "==":
+                return nativeBoolToBooleanObject(l.Value == r.Value);
+            case "!=":
+                return nativeBoolToBooleanObject(l.Value != r.Value);
             case "+":
                 return new Integer(l.Value + r.Value);
             case "-":
@@ -114,6 +123,16 @@ public class Eval
             default:
                 return new Null();
         }
+    }
+
+    private IObject nativeBoolToBooleanObject(bool input)
+    {
+        if (input)
+        {
+            return new Object.Boolean(true);
+        }
+
+        return new Object.Boolean(false);
     }
 
     private IObject evalStatements(IStatement[] stmts)
