@@ -125,6 +125,16 @@ public class EvaluationTest
             new ExpectedEvalBoolean("1 != 1", false),
             new ExpectedEvalBoolean("1 == 2", false),
             new ExpectedEvalBoolean("1 != 2", true),
+            
+            new ExpectedEvalBoolean("true == true", true),
+            new ExpectedEvalBoolean("false == false", true),
+            new ExpectedEvalBoolean("true == false", false),
+            new ExpectedEvalBoolean("true != false", true),
+            new ExpectedEvalBoolean("false != true", true),
+            new ExpectedEvalBoolean("(1 < 2) == true", true),
+            new ExpectedEvalBoolean("(1 < 2) == false", false),
+            new ExpectedEvalBoolean("(1 > 2) == true", false),
+            new ExpectedEvalBoolean("(1 > 2) == false", true),
         };
 
         foreach (var test in tests)

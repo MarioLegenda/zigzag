@@ -94,6 +94,34 @@ public class Eval
             return evalIntegerInfixExpression(op, left, right);
         }
 
+        if (op == "==" && left is Object.Boolean)
+        {
+            Object.Boolean l = (Object.Boolean)left;
+            Object.Boolean r = (Object.Boolean)right;
+            return nativeBoolToBooleanObject(l.Value == r.Value);
+        }
+
+        if (op == "!=")
+        {
+            Object.Boolean l = (Object.Boolean)left;
+            Object.Boolean r = (Object.Boolean)right;
+            return nativeBoolToBooleanObject(l.Value != r.Value);
+        }
+        
+        if (op == "==" && left is Object.Integer)
+        {
+            Object.Integer l = (Object.Integer)left;
+            Object.Integer r = (Object.Integer)right;
+            return nativeBoolToBooleanObject(l.Value == r.Value);
+        }
+
+        if (op == "!=")
+        {
+            Object.Integer l = (Object.Integer)left;
+            Object.Integer r = (Object.Integer)right;
+            return nativeBoolToBooleanObject(l.Value != r.Value);
+        }
+
         return new Null();
     }
 
