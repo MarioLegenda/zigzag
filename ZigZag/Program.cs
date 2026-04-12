@@ -27,7 +27,7 @@ static void Start(TextReader input, TextWriter output)
         Parser p = new Parser(new Lexer(line));
         ZigZag.Ast.Program program = p.ParseProgram();
 
-        IObject evaluated = new Eval().Evaluate(program);
+        IObject evaluated = new Eval().Evaluate(program, new ObjectEnvironment());
         Console.WriteLine(evaluated.Inspect());
     }
 }

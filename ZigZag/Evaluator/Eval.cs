@@ -9,16 +9,32 @@ using Ast;
 
 public class Eval
 {
-    public IObject? Evaluate(INode node)
+    public IObject? Evaluate(INode node, ObjectEnvironment env)
     {
         if (node is Program p)
         {
-            return evalProgram(p.Statements);
+            return evalProgram(p.Statements, env);
+        }
+
+        if (node is Identifier id)
+        {
+            return evalIdentifier(id, env);
+        }
+
+        if (node is LetStatement lt)
+        {
+            IObject? val = new Eval().Evaluate(lt, env);
+            if (val is not null && isError(val))
+            {
+                return val;
+            }
+            
+            env.Set(lt.Name.Value, val);
         }
 
         if (node is ReturnStatement rt)
         {
-            IObject val = new Eval().Evaluate(rt.ReturnValue);
+            IObject val = new Eval().Evaluate(rt.ReturnValue, env);
             if (isError(val))
             {
                 return val;
@@ -34,17 +50,17 @@ public class Eval
 
         if (node is Ast.BlockStatement bl)
         {
-            return evalBlockStatement(bl.Statements);
+            return evalBlockStatement(bl.Statements ,env);
         }
 
         if (node is Ast.IfExpression ifexp)
         {
-            return evalIfExpression(ifexp);
+            return evalIfExpression(ifexp, env);
         }
 
         if (node is PrefixExpression pe)
         {
-            IObject? right = new Eval().Evaluate(pe.Right);
+            IObject? right = new Eval().Evaluate(pe.Right, env);
             if (isError(right))
             {
                 return right;
@@ -58,13 +74,13 @@ public class Eval
 
         if (node is InfixExpression ife)
         {
-            IObject? left = new Eval().Evaluate(ife.Left);
+            IObject? left = new Eval().Evaluate(ife.Left, env);
             if (isError(left))
             {
                 return left;
             }
             
-            IObject? right = new Eval().Evaluate(ife.Right);
+            IObject? right = new Eval().Evaluate(ife.Right, env);
             if (isError(right))
             {
                 return right;
@@ -78,7 +94,7 @@ public class Eval
 
         if (node is ExpressionStatement exp && exp.Expression is not null)
         {
-            return new Eval().Evaluate(exp.Expression);
+            return new Eval().Evaluate(exp.Expression, env);
         }
         
         if (node is IntegerLiteral it)
@@ -89,9 +105,9 @@ public class Eval
         return null;
     }
 
-    private IObject evalIfExpression(Ast.IfExpression ifexp)
+    private IObject evalIfExpression(Ast.IfExpression ifexp, ObjectEnvironment env)
     {
-        IObject? condition = new Eval().Evaluate(ifexp.Condition);
+        IObject? condition = new Eval().Evaluate(ifexp.Condition, env);
         if (condition is not null && isError(condition))
         {
             return condition;
@@ -99,11 +115,11 @@ public class Eval
 
         if (isTruthy(condition))
         {
-            return new Eval().Evaluate(ifexp.Consequence);
+            return new Eval().Evaluate(ifexp.Consequence, env);
         }
         else if (ifexp.Alternative != null)
         {
-            return new Eval().Evaluate(ifexp.Alternative);
+            return new Eval().Evaluate(ifexp.Alternative, env);
         }
         else
         {
@@ -260,12 +276,12 @@ public class Eval
         return new Object.Boolean(false);
     }
 
-    private IObject evalProgram(List<IStatement> stmts)
+    private IObject evalProgram(List<IStatement> stmts, ObjectEnvironment env)
     {
         IObject result = null;
         foreach (var stmt in stmts)
         {
-            result = new Eval().Evaluate(stmt);
+            result = new Eval().Evaluate(stmt, env);
 
             if (result is Object.ReturnValue rt)
             {
@@ -281,12 +297,12 @@ public class Eval
         return result;
     }
 
-    public IObject evalBlockStatement(List<IStatement> stmts)
+    public IObject evalBlockStatement(List<IStatement> stmts, ObjectEnvironment env)
     {
         IObject result = null;
         foreach (var stmt in stmts)
         {
-            result = new Eval().Evaluate(stmt);
+            result = new Eval().Evaluate(stmt, env);
 
             if (result != null && result.Type() == ObjectTypeEnum.RETURN_VALUE_OBJ || result.Type() == ObjectTypeEnum.ERROR_OBJ)
             {
@@ -295,6 +311,17 @@ public class Eval
         }
 
         return result;
+    }
+
+    private IObject evalIdentifier(Identifier ident, ObjectEnvironment env)
+    {
+        IObject? val = env.Get(ident.Value);
+        if (val is null)
+        {
+            return newError("identifier not found: " + ident.Value);
+        }
+
+        return val;
     }
 
     private Error newError(string format, params object[] args)

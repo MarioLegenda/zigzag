@@ -215,6 +215,6 @@ return 1;
         Assert.NotNull(program);
         Assert.Empty(p.Errors());
 
-        return new Eval().Evaluate(program);
+        return new Eval().Evaluate(program, new ObjectEnvironment());
     }
 }
