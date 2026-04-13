@@ -46,6 +46,9 @@ if (5 < 10) {
 
 10 == 10;
 10 != 9;
+
+""foobar""
+""foo bar""
 ";
 
         Expected[] expecteds =
@@ -123,6 +126,8 @@ if (5 < 10) {
             new Expected(Tokens.NOT_EQ, "!="),
             new Expected(Tokens.INT, "9"),
             new Expected(Tokens.SEMICOLON, ";"),
+            new Expected(Tokens.STRING, "foobar"),
+            new Expected(Tokens.STRING, "foo bar"),
         };
 
         Lexer lexer = new Lexer(input);

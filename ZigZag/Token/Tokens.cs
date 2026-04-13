@@ -33,4 +33,6 @@ public class Tokens
 
     public const string EQ = "==";
     public const string NOT_EQ = "!=";
+
+    public const string STRING = "STRING";
 }

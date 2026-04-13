@@ -15,21 +15,6 @@ public class Lexer
         this.readChar();
     }
 
-    private void readChar()
-    {
-        if (this.ReadPosition >= this.Input.Length)
-        {
-            this.Ch = 0;
-        }
-        else
-        {
-            this.Ch = (byte)this.Input[this.ReadPosition];
-        }
-
-        this.Position = this.ReadPosition;
-        this.ReadPosition += 1;
-    }
-
     public Token NextToken()
     {
         this.skipWhitespace();
@@ -117,6 +102,10 @@ public class Lexer
             case 0:
                 Token eof = new Token(Tokens.EOF, ((char)this.Ch).ToString());
                 return eof;
+            case 34:
+                Token t16 = new Token(Tokens.STRING, this.readString());
+                this.readChar();
+                return t16;
             default:
                 if (isLetter((char)this.Ch))
                 {
@@ -134,6 +123,38 @@ public class Lexer
                     return new Token(Tokens.ILLEGAL, this.Ch.ToString());
                 }
         }
+    }
+    
+    private void readChar()
+    {
+        if (this.ReadPosition >= this.Input.Length)
+        {
+            this.Ch = 0;
+        }
+        else
+        {
+            this.Ch = (byte)this.Input[this.ReadPosition];
+        }
+
+        this.Position = this.ReadPosition;
+        this.ReadPosition += 1;
+    }
+
+    private string readString()
+    {
+        int position = this.Position + 1;
+
+        for (;;)
+        {
+            this.readChar();
+
+            if (this.Ch == 34 || this.Ch == 0)
+            {
+                break;
+            }
+        }
+
+        return this.Input.Substring(position, this.Position - position);
     }
 
     private string readIdentifier()
