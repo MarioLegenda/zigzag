@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.InteropServices.JavaScript;
 using System.Xml.Xsl;
 using ZigZag.Parser;
@@ -16,6 +17,28 @@ public class Eval
             return evalProgram(p.Statements, env);
         }
 
+        if (node is CallExpression ce)
+        {
+            IObject? function = new Eval().Evaluate(ce.Function, env);
+            if (function is null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            if (isError(function))
+            {
+                return function;
+            }
+
+            List<IObject> args = evalExpressions(ce.Arguments, env);
+            if (args.Count == 1 && isError(args[0]))
+            {
+                return args[0];
+            }
+
+            return applyFunction(function, args);
+        }
+
         if (node is FunctionLiteral fn)
         {
             List<Identifier> parameters = fn.Parameters;
@@ -31,13 +54,20 @@ public class Eval
 
         if (node is LetStatement lt)
         {
-            IObject? val = new Eval().Evaluate(lt, env);
+            if (lt.Value is null)
+            {
+                throw new ArgumentNullException();
+            }
+            
+            IObject? val = new Eval().Evaluate(lt.Value, env);
             if (val is not null && isError(val))
             {
                 return val;
             }
             
             env.Set(lt.Name.Value, val);
+
+            return val;
         }
 
         if (node is ReturnStatement rt)
@@ -345,5 +375,62 @@ public class Eval
         }
 
         return false;
+    }
+
+    private IObject applyFunction(IObject fn, List<IObject> args)
+    {
+        Function function = (Function)fn;
+
+        ObjectEnvironment extendedEnv = extendFunctionEnv(function, args);
+        IObject? evaluated = new Eval().Evaluate(function.Body, extendedEnv);
+        ArgumentNullException.ThrowIfNull(evaluated);
+
+        return unwrapReturnValue(evaluated);
+    }
+
+    private IObject unwrapReturnValue(IObject obj)
+    {
+        if (obj is ReturnValue rt)
+        {
+            return rt.Value;
+        }
+
+        return obj;
+    }
+
+    private ObjectEnvironment extendFunctionEnv(Function fn, List<IObject> args)
+    {
+        ObjectEnvironment env = new ObjectEnvironment(fn.Env);
+
+        for (int idx = 0; idx < fn.Parameters.Count; idx++)
+        {
+            Identifier identifier = fn.Parameters[idx];
+            env.Set(identifier.Value, args[idx]);
+        }
+
+        return env;
+    }
+
+    private List<IObject> evalExpressions(List<IExpression> expressions, ObjectEnvironment env)
+    {
+        List<IObject> result = new();
+
+        foreach (var exp in expressions)
+        {
+            var evaluated = new Eval().Evaluate(exp, env);
+            if (isError(evaluated))
+            {
+                return new List<IObject>() { evaluated };
+            }
+
+            if (evaluated is null)
+            {
+                throw new ArgumentNullException();
+            }
+            
+            result.Add(evaluated);
+        }
+
+        return result;
     }
 }

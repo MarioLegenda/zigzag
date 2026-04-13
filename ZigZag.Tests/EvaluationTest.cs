@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace ZigZag.Tests;
 
 using ZigZag.Ast;
@@ -27,6 +29,45 @@ public class EvaluationTest
     public EvaluationTest(ITestOutputHelper output)
     {
         _output = output;
+    }
+
+    [Fact]
+    public void TestClosures()
+    {
+        string input = @"let newAdder = fn(x) {
+            fn(y) { x + y };
+        };
+        let addTwo = newAdder(2);
+        addTwo(2);";
+
+        IObject evaluated = testEval(input);
+        Integer integer = (Integer)evaluated;
+        Assert.NotNull(integer);
+        
+        Assert.Equal(4, integer.Value);
+    }
+
+    [Fact]
+    public void TestFunctionApplication()
+    {
+        Expected<int>[] tests =
+        {
+            new Expected<int>("let identity = fn(x) { x; }; identity(5);", 5),
+            new Expected<int>("let identity = fn(x) { return x; }; identity(5);", 5),
+            new Expected<int>("let double = fn(x) { x * 2; }; double(5);", 10),
+            new Expected<int>("let add = fn(x, y) { x + y; }; add(5, 5);", 10),
+            new Expected<int>("let add = fn(x, y) { x + y; }; add(5 + 5, add(5, 5));", 20),
+            new Expected<int>("fn(x) { x; }(5)", 5),
+        };
+
+        foreach (var test in tests)
+        {
+            IObject evaluated = testEval(test.input);
+            Integer integer = (Integer)evaluated;
+            Assert.NotNull(integer);
+            
+            Assert.Equal(test.expected, integer.Value);
+        }
     }
 
     [Fact]
