@@ -36,6 +36,24 @@ public class ParserTest
     }
 
     [Fact]
+    public void TestStringLiteralExpression()
+    {
+        string input = "\"hello world\"";
+        
+        Parser parser = new Parser(new Lexer(input));
+        Program program = parser.ParseProgram();
+        
+        Assert.NotNull(program);
+        Assert.Empty(parser.Errors());
+        
+        Ast.ExpressionStatement expressionStatement = (Ast.ExpressionStatement)program.Statements[0];
+        StringLiteral stringLiteral = (StringLiteral)expressionStatement.Expression;
+        Assert.NotNull(stringLiteral);
+        
+        Assert.Equal("hello world", stringLiteral.Value);
+    }
+
+    [Fact]
     public void TestCallExpressionParsing()
     {
         string input = "add(1, 2 * 3, 4 + 5);";

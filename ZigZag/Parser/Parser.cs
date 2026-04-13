@@ -13,11 +13,12 @@ public class Parser: BaseParser
         this.NextToken();
         this.NextToken();
 
+        this.prefixParsers[Tokens.STRING] = new StringParser();
         this.prefixParsers[Tokens.IDENT] = new IdentifierParser();
         this.prefixParsers[Tokens.INT] = new IntegerParser();
         this.prefixParsers[Tokens.BANG] = new Expression();
         this.prefixParsers[Tokens.MINUS] = new Expression();
-        
+
         this.prefixParsers[Tokens.IF] = new IfParser();
         
         this.prefixParsers[Tokens.LPAREN] = new GroupedExpressionParser();
