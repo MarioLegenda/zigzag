@@ -32,6 +32,18 @@ public class EvaluationTest
     }
 
     [Fact]
+    public void TestStringLiteral()
+    {
+        string input = "\"Hello world\"";
+
+        IObject evaluated = testEval(input);
+        String str = (String)evaluated;
+        Assert.NotNull(str);
+        
+        Assert.Equal("Hello world", str.Value);
+    }
+
+    [Fact]
     public void TestClosures()
     {
         string input = @"let newAdder = fn(x) {

@@ -1,12 +1,8 @@
-using System.Diagnostics;
-using System.Runtime.InteropServices.JavaScript;
-using System.Xml.Xsl;
-using ZigZag.Parser;
-
 namespace ZigZag.Evaluator;
 
 using Object;
 using Ast;
+using ZigZag.Parser;
 
 public class Eval
 {
@@ -15,6 +11,11 @@ public class Eval
         if (node is Program p)
         {
             return evalProgram(p.Statements, env);
+        }
+
+        if (node is StringLiteral stl)
+        {
+            return new Object.String(stl.Value);
         }
 
         if (node is CallExpression ce)
