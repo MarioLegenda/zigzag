@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices;
+
 namespace ZigZag.Evaluator;
 
 using Object;
@@ -274,7 +276,27 @@ public class Eval
             return nativeBoolToBooleanObject(l.Value != r.Value);
         }
 
+        if (left.Type() == ObjectTypeEnum.STRING_OBJ && right.Type() == ObjectTypeEnum.STRING_OBJ)
+        {
+            return evalStringInfixExpression(op, left, right);
+        }
+
         return newError("unknown operator: {0} {1} {2}", left.Type(), op, right.Type());
+    }
+
+    private IObject evalStringInfixExpression(string op, IObject left, IObject right)
+    {
+        Console.WriteLine("Operator: {0}, left: {1}, right: {2}", op, left.Type(), right.Type());
+        if (op != "+")
+        {
+            return new Error("unknown operator: {0} {1} {2}", left.Type(), op, right.Type());
+        }
+        
+        
+
+        String leftVal = (String)left;
+        String rightVal = (String)right;
+        return new String(leftVal.Value + rightVal.Value);
     }
 
     private IObject evalIntegerInfixExpression(string op, IObject left, IObject right)
@@ -355,12 +377,18 @@ public class Eval
     private IObject evalIdentifier(Identifier ident, ObjectEnvironment env)
     {
         IObject? val = env.Get(ident.Value);
-        if (val is null)
+        if (val is not null)
         {
-            return newError("identifier not found: " + ident.Value);
+            return val;
         }
 
-        return val;
+        Builtins builtins = new Builtins();
+        if (builtins.Exists(ident.Value))
+        {
+            return builtins.Get(ident.Value);
+        }
+
+        return newError("identifier not found: " + ident.Value);
     }
 
     private Error newError(string format, params object[] args)
@@ -380,13 +408,23 @@ public class Eval
 
     private IObject applyFunction(IObject fn, List<IObject> args)
     {
-        Function function = (Function)fn;
+        if (fn is Function)
+        {
+            Function function = (Function)fn;
 
-        ObjectEnvironment extendedEnv = extendFunctionEnv(function, args);
-        IObject? evaluated = new Eval().Evaluate(function.Body, extendedEnv);
-        ArgumentNullException.ThrowIfNull(evaluated);
+            ObjectEnvironment extendedEnv = extendFunctionEnv(function, args);
+            IObject? evaluated = new Eval().Evaluate(function.Body, extendedEnv);
+            ArgumentNullException.ThrowIfNull(evaluated);
 
-        return unwrapReturnValue(evaluated);
+            return unwrapReturnValue(evaluated);
+        }
+
+        if (fn is Builtin builtin)
+        {
+            return builtin.Fn(args.ToArray());
+        }
+
+        return newError("not a function: {0}", fn.Type());
     }
 
     private IObject unwrapReturnValue(IObject obj)

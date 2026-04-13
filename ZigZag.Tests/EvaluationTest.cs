@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices.JavaScript;
 
 namespace ZigZag.Tests;
 
@@ -29,6 +30,53 @@ public class EvaluationTest
     public EvaluationTest(ITestOutputHelper output)
     {
         _output = output;
+    }
+
+    [Fact]
+    public void TestBuiltinFunctions()
+    {
+        Expected<int>[] passingTests =
+        {
+            new Expected<int>("len(\"\")", 0),
+            new Expected<int>("len(\"four\")", 4),
+            new Expected<int>("len(\"hello world\")", 11),
+        };
+        
+        foreach (var test in passingTests)
+        {
+            IObject? evaluated = testEval(test.input);
+            Assert.NotNull(evaluated);
+
+            Integer integer = (Integer)evaluated;
+            Assert.Equal(test.expected, integer.Value);
+        }
+        
+        Expected<string>[] failingTests =
+        {
+            new Expected<string>("len(1)", "argument to `len` not supported, got INTEGER_OBJ"),
+            new Expected<string>("len(\"one\", \"two\")", "wrong number of arguments. got=2, want=1"),
+        };
+        
+        foreach (var test in failingTests)
+        {
+            IObject? evaluated = testEval(test.input);
+            Assert.NotNull(evaluated);
+
+            Error integer = (Error)evaluated;
+            Assert.Equal(test.expected, integer.Message);
+        }
+    }
+
+    [Fact]
+    public void TestStringConcatenation()
+    {
+        string input = "\"Hello\" + \" \" + \"world\"";
+
+        IObject evaluated = testEval(input);
+        String str = (String)evaluated;
+        Assert.NotNull(str);
+        
+        Assert.Equal("Hello world", str.Value);
     }
 
     [Fact]
@@ -277,7 +325,7 @@ return 1;
         }
     }
 
-    private IObject testEval(string input)
+    private IObject? testEval(string input)
     {
         Parser p = new Parser(new Lexer(input));
         Program program = p.ParseProgram();

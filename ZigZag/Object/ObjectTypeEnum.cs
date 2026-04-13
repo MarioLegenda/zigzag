@@ -9,4 +9,5 @@ public enum ObjectTypeEnum
     ERROR_OBJ,
     FUNCTION_OBJ,
     STRING_OBJ,
+    BUILTIN_OBJ,
 }
