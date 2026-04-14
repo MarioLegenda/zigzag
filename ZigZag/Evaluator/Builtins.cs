@@ -119,6 +119,16 @@ public class Builtins
 
             return newArray;
         });
+        
+        _dictionary["puts"] = new Builtin((args) =>
+        {
+            foreach (var arg in args)
+            {
+                Console.WriteLine(arg.Inspect());
+            }
+
+            return new Null();
+        });
     }
 
     public bool Exists(string builtinName)
