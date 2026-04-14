@@ -36,6 +36,103 @@ public class ParserTest
     }
 
     [Fact]
+    public void TestParsingHashLiteralsWithExpressions()
+    {
+        string input = "{\"one\": 0 + 1, \"two\": 10 - 8, \"three\": 15 / 5}";
+        
+        Parser parser = new Parser(new Lexer(input));
+        Program program = parser.ParseProgram();
+        
+        Assert.NotNull(program);
+        Assert.Empty(parser.Errors());
+        
+        Ast.ExpressionStatement expressionStatement = (Ast.ExpressionStatement)program.Statements[0];
+        HashLiteral hashLiteral = (HashLiteral)expressionStatement.Expression;
+        Assert.NotNull(hashLiteral);
+        
+        Assert.Equal(3, hashLiteral.Pairs.Count);
+        
+        var tests = new Dictionary<string, Action<IExpression>>
+        {
+            ["one"] = e =>
+            {
+                testInfixExpression(e, "+", 0, 1);
+            },
+            ["two"] = e =>
+            {
+                testInfixExpression(e, "-", 10, 8);
+            },
+            ["three"] = e =>
+            {
+                testInfixExpression(e, "/", 15, 5);
+            }
+        };
+
+        foreach (var (key, value) in hashLiteral.Pairs)
+        {
+            StringLiteral stringLiteral = (StringLiteral)key;
+            Assert.NotNull(stringLiteral);
+
+            Action<IExpression> testFn = tests[key.String()];
+
+            testFn(value);
+        }
+    }
+
+    [Fact]
+    public void TestParsingEmptyHashLiteral()
+    {
+        string input = "{}";
+
+        Parser parser = new Parser(new Lexer(input));
+        Program program = parser.ParseProgram();
+        
+        Assert.NotNull(program);
+        Assert.Empty(parser.Errors());
+        
+        Ast.ExpressionStatement expressionStatement = (Ast.ExpressionStatement)program.Statements[0];
+        HashLiteral hashLiteral = (HashLiteral)expressionStatement.Expression;
+        Assert.NotNull(hashLiteral);
+        
+        Assert.Empty(hashLiteral.Pairs);
+    }
+
+    [Fact]
+    public void TestParsingHashLiteralsStringKeys()
+    {
+        string input = "{\"one\": 1, \"two\": 2, \"three\": 3}";
+
+        Parser parser = new Parser(new Lexer(input));
+        Program program = parser.ParseProgram();
+        
+        Assert.NotNull(program);
+        Assert.Empty(parser.Errors());
+        
+        Ast.ExpressionStatement expressionStatement = (Ast.ExpressionStatement)program.Statements[0];
+        HashLiteral hashLiteral = (HashLiteral)expressionStatement.Expression;
+        Assert.NotNull(hashLiteral);
+        
+        Assert.Equal(3, hashLiteral.Pairs.Count);
+
+        Dictionary<string, int> expected = new Dictionary<string, int>()
+        {
+            {"one", 1},
+            {"two", 2},
+            {"three", 3},
+        };
+
+        foreach (var (key, value) in hashLiteral.Pairs)
+        {
+            StringLiteral stringKey = (StringLiteral)key;
+            Assert.NotNull(stringKey);
+
+            int expectedValue = expected[stringKey.String()];
+            
+            testIntegerLiteral(value, expectedValue);
+        }
+    }
+
+    [Fact]
     public void TestParsingIndexExpressions()
     {
         string input = "myArray[1 + 1]";

@@ -30,6 +30,8 @@ public class Parser: BaseParser
 
         this.prefixParsers[Tokens.LBRACKET] = new ArrayParser();
 
+        this.prefixParsers[Tokens.LBRACE] = new HashParser();
+
         this._infixParsers[Tokens.MINUS] = new InfixParser();
         this._infixParsers[Tokens.PLUS] = new InfixParser();
         this._infixParsers[Tokens.SLASH] = new InfixParser();
