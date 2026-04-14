@@ -12,6 +12,8 @@ Start(Console.In, Console.Out);
 
 static void Start(TextReader input, TextWriter output)
 {
+    string bracket = "]";
+    Console.WriteLine((byte)bracket[0]);
     const string PROMPT = ">> ";
     
     while (true)

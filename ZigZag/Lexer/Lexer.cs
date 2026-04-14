@@ -106,6 +106,14 @@ public class Lexer
                 Token t16 = new Token(Tokens.STRING, this.readString());
                 this.readChar();
                 return t16;
+            case 91:
+                Token t17 = new Token(Tokens.LBRACKET, ((char)this.Ch).ToString());
+                this.readChar();
+                return t17;
+            case 93:
+                Token t18 = new Token(Tokens.RBRACKET, ((char)this.Ch).ToString());
+                this.readChar();
+                return t18;
             default:
                 if (isLetter((char)this.Ch))
                 {

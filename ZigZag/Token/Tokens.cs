@@ -35,4 +35,7 @@ public class Tokens
     public const string NOT_EQ = "!=";
 
     public const string STRING = "STRING";
+
+    public const string LBRACKET = "[";
+    public const string RBRACKET = "]";
 }
