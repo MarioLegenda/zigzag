@@ -15,6 +15,21 @@ public class Eval
             return evalProgram(p.Statements, env);
         }
 
+        if (node is IndexExpression ie)
+        {
+            IObject? left = new Eval().Evaluate(ie.Left, env);
+            ArgumentNullException.ThrowIfNull(left);
+            if (isError(left))
+            {
+                return left;
+            }
+
+            IObject? index = new Eval().Evaluate(ie.Index, env);
+            ArgumentNullException.ThrowIfNull(index);
+
+            return evalIndexExpression(left, index);
+        }
+
         if (node is ArrayLiteral al)
         {
             List<IObject> list = evalExpressions(al.Elements, env);
@@ -155,6 +170,32 @@ public class Eval
         }
 
         return null;
+    }
+
+    private IObject evalIndexExpression(IObject left, IObject index)
+    {
+        if (left.Type() == ObjectTypeEnum.ARRAY_OBJ && index.Type() == ObjectTypeEnum.INTEGER_OBJ)
+        {
+            return evalArrayIndexExpression(left, index);
+        }
+
+        return newError("index operator not supported: {0}", left.Type());
+    }
+
+    private IObject evalArrayIndexExpression(IObject array, IObject index)
+    {
+        Array arrayObject = (Array)array;
+        Integer indexInteger = (Integer)index;
+
+        int idx = indexInteger.Value;
+        int max = arrayObject.Elements.Count - 1;
+
+        if (idx < 0 || idx > max)
+        {
+            return new Null();
+        }
+
+        return arrayObject.Elements[idx];
     }
 
     private IObject evalIfExpression(Ast.IfExpression ifexp, ObjectEnvironment env)

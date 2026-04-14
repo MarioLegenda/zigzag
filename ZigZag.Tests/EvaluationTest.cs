@@ -33,6 +33,46 @@ public class EvaluationTest
     }
 
     [Fact]
+    public void TestArrayIndexExpressions()
+    {
+        Expected<int>[] nonNullableTests =
+        {
+            new Expected<int>("[1, 2, 3][0]", 1),
+            new Expected<int>("[1, 2, 3][1]", 2),
+            new Expected<int>("[1, 2, 3][2]", 3),
+            new Expected<int>("let i = 0; [1][i];", 1),
+            new Expected<int>("[1, 2, 3][1 + 1];", 3),
+            new Expected<int>("let myArray = [1, 2, 3]; myArray[2];", 3),
+            new Expected<int>("let myArray = [1, 2, 3]; myArray[0] + myArray[1] + myArray[2];", 6),
+            new Expected<int>("let myArray = [1, 2, 3]; let i = myArray[0]; myArray[i]", 2),
+        };
+        
+        foreach (var test in nonNullableTests)
+        {
+            IObject? evaluated = testEval(test.input);
+            Assert.NotNull(evaluated);
+
+            Integer integer = (Integer)evaluated;
+            Assert.Equal(test.expected, integer.Value);
+        }
+        
+        Expected<int>[] nullableTests =
+        {
+            new Expected<int>("[1, 2, 3][3]", 1),
+            new Expected<int>("[1, 2, 3][-1]", 2),
+        };
+        
+        foreach (var test in nullableTests)
+        {
+            IObject? evaluated = testEval(test.input);
+            Assert.NotNull(evaluated);
+            
+            Null nullValue = (Null)evaluated;
+            Assert.NotNull(nullValue);
+        }
+    }
+
+    [Fact]
     public void TestArrayLiterals()
     {
         string input = "[1, 2 * 2, 3 + 3]";
