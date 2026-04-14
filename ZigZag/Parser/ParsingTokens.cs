@@ -9,4 +9,5 @@ public enum ParsingTokens
     PRODUCT,
     PREFIX,
     CALL,
+    INDEX,
 }

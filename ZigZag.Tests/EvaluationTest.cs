@@ -33,6 +33,23 @@ public class EvaluationTest
     }
 
     [Fact]
+    public void TestArrayLiterals()
+    {
+        string input = "[1, 2 * 2, 3 + 3]";
+
+        IObject? evaluated = testEval(input);
+        Assert.NotNull(evaluated);
+
+        Array array = (Array)evaluated;
+        
+        Assert.Equal(3, array.Elements.Count);
+        
+        testIntegerObject(array.Elements[0], 1);
+        testIntegerObject(array.Elements[1], 4);
+        testIntegerObject(array.Elements[2], 6);
+    }
+
+    [Fact]
     public void TestBuiltinFunctions()
     {
         Expected<int>[] passingTests =
@@ -279,11 +296,10 @@ return 1;
 
         foreach (var test in tests)
         {
-            IObject evaluated = testEval(test.input);
-            Integer integer = (Integer)evaluated;
-            Assert.NotNull(integer);
-            
-            Assert.Equal(test.expected, integer.Value);
+            IObject? evaluated = testEval(test.input);
+            Assert.NotNull(evaluated);
+
+            testIntegerObject(evaluated, test.expected);
         }
     }
     
@@ -323,6 +339,14 @@ return 1;
             
             Assert.Equal(test.expected, boolean.Value);
         }
+    }
+
+    private void testIntegerObject(IObject evaluated, int expected)
+    {
+        Integer integer = (Integer)evaluated;
+        Assert.NotNull(integer);
+            
+        Assert.Equal(expected, integer.Value);
     }
 
     private IObject? testEval(string input)

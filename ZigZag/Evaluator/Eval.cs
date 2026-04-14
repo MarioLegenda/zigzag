@@ -15,6 +15,17 @@ public class Eval
             return evalProgram(p.Statements, env);
         }
 
+        if (node is ArrayLiteral al)
+        {
+            List<IObject> list = evalExpressions(al.Elements, env);
+            if (list.Count == 1 && isError(list[0]))
+            {
+                return list[0];
+            }
+
+            return new Array(list);
+        }
+
         if (node is StringLiteral stl)
         {
             return new Object.String(stl.Value);

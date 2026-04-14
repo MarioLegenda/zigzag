@@ -10,4 +10,5 @@ public enum ObjectTypeEnum
     FUNCTION_OBJ,
     STRING_OBJ,
     BUILTIN_OBJ,
+    ARRAY_OBJ,
 }

@@ -36,6 +36,27 @@ public class ParserTest
     }
 
     [Fact]
+    public void TestParsingIndexExpressions()
+    {
+        string input = "myArray[1 + 1]";
+        
+        Parser parser = new Parser(new Lexer(input));
+        Program program = parser.ParseProgram();
+        
+        Assert.NotNull(program);
+        Assert.Empty(parser.Errors());
+        
+        Ast.ExpressionStatement expressionStatement = (Ast.ExpressionStatement)program.Statements[0];
+        IndexExpression indexExpression = (IndexExpression)expressionStatement.Expression;
+        Assert.NotNull(indexExpression);
+        
+        Identifier identifier = (Identifier)indexExpression.Left;
+        
+        Assert.Equal("myArray", identifier.Value);
+        Assert.Equal("myArray", identifier.TokenLiteral());
+    }
+
+    [Fact]
     public void TestParsingArrayLiterals()
     {
         string input = "[1, 2 * 2, 3 + 3]";
@@ -49,6 +70,12 @@ public class ParserTest
         Ast.ExpressionStatement expressionStatement = (Ast.ExpressionStatement)program.Statements[0];
         ArrayLiteral arrayLiteral = (ArrayLiteral)expressionStatement.Expression;
         Assert.NotNull(arrayLiteral);
+        
+        Assert.Equal(3, arrayLiteral.Elements.Count);
+        
+        testIntegerLiteral(arrayLiteral.Elements[0], 1);
+        testInfixExpression(arrayLiteral.Elements[1], "*", 2, 2);
+        testInfixExpression(arrayLiteral.Elements[2], "+", 3, 3);
     }
     
     [Fact]
@@ -244,6 +271,8 @@ public class ParserTest
             new ExpectedPrecendenceParsing("a + add(b * c) + d", "((a + add((b * c))) + d)"),
             new ExpectedPrecendenceParsing("add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))", "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))"),
             new ExpectedPrecendenceParsing("add(a + b + c * d / f + g)", "add((((a + b) + ((c * d) / f)) + g))"),
+            new ExpectedPrecendenceParsing("a * [1, 2, 3, 4][b * c] * d", "((a * ([1, 2, 3, 4][(b * c)])) * d)"),
+            new ExpectedPrecendenceParsing("add(a * b[2], b[1], 2 * [1, 2][1])", "add((a * (b[2])), (b[1]), (2 * ([1, 2][1])))"),
         };
 
         foreach (ExpectedPrecendenceParsing test in tests)
@@ -300,11 +329,7 @@ public class ParserTest
 
         Assert.Single(program.Statements);
 
-        ExpressionStatement expressionStatement = (ExpressionStatement)program.Statements[0];
-        Identifier identifier = (Identifier)expressionStatement.Expression;
-        
-        Assert.Equal("foobar", identifier.Value);
-        Assert.Equal("foobar", identifier.TokenLiteral());
+        testIdentifier(program.Statements[0], "foobar");
     }
     
     [Fact]
@@ -377,6 +402,15 @@ let foobar = 838383;
         IntegerLiteral literal = (IntegerLiteral)expression;
         Assert.Equal(literal.Value, integerValue);
         Assert.Equal(literal.TokenLiteral(), integerValue + "");
+    }
+
+    private void testIdentifier(IStatement stmt, string ident)
+    {
+        ExpressionStatement expressionStatement = (ExpressionStatement)stmt;
+        Identifier identifier = (Identifier)expressionStatement.Expression;
+        
+        Assert.Equal(ident, identifier.Value);
+        Assert.Equal(ident, identifier.TokenLiteral());
     }
 
     private void testInfixExpression(IExpression exp, string op, int left, int right)
