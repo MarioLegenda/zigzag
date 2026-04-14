@@ -1,6 +1,6 @@
 namespace ZigZag.Object;
 
-public class Integer: IObject
+public class Integer: IObject, Hashable
 {
     public int Value { get; }
 
@@ -17,5 +17,10 @@ public class Integer: IObject
     public ObjectTypeEnum Type()
     {
         return ObjectTypeEnum.INTEGER_OBJ;
+    }
+
+    public HashKey HashKey()
+    {
+        return new HashKey(this.Type().ToString(), this.Value);
     }
 }

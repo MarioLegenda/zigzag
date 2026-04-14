@@ -15,6 +15,11 @@ public class Eval
             return evalProgram(p.Statements, env);
         }
 
+        if (node is HashLiteral hl)
+        {
+            return evalHashLiteral(hl, env);
+        }
+
         if (node is IndexExpression ie)
         {
             IObject? left = new Eval().Evaluate(ie.Left, env);
@@ -170,6 +175,35 @@ public class Eval
         }
 
         return null;
+    }
+
+    private IObject evalHashLiteral(HashLiteral node, ObjectEnvironment env)
+    {
+        Dictionary<HashKey, HashPair> pairs = new();
+
+        foreach (var (keyNode, valueNode) in node.Pairs)
+        {
+            IObject? key = new Eval().Evaluate(keyNode, env);
+            ArgumentNullException.ThrowIfNull(key);
+            if (isError(key))
+            {
+                return key;
+            }
+
+            Hashable hashKey = (Hashable)key;
+            
+            IObject? value = new Eval().Evaluate(valueNode, env);
+            ArgumentNullException.ThrowIfNull(value);
+            if (isError(value))
+            {
+                return value;
+            }
+
+            HashKey hashed = hashKey.HashKey();
+            pairs[hashed] = new HashPair(key, value);
+        }
+
+        return new Hash(pairs);
     }
 
     private IObject evalIndexExpression(IObject left, IObject index)

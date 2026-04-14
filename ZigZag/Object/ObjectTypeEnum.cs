@@ -11,4 +11,5 @@ public enum ObjectTypeEnum
     STRING_OBJ,
     BUILTIN_OBJ,
     ARRAY_OBJ,
+    HASH_OBJ,
 }

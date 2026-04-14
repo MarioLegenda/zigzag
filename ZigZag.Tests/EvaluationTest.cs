@@ -33,6 +33,45 @@ public class EvaluationTest
     }
 
     [Fact]
+    public void TestHashLiterals()
+    {
+        string input = @"let two = ""two"";
+        {
+            ""one"": 10 - 9,
+            two: 1 + 1,
+            ""thr"" + ""ee"": 6 / 2,
+            4: 4,
+            true: 5,
+            false: 6
+        }";
+
+        IObject? evaluated = testEval(input);
+        Assert.NotNull(evaluated);
+        Hash result = (Hash)evaluated;
+        Assert.NotNull(result);
+
+        Dictionary<HashKey, int> expected = new()
+        {
+            { new String("one").HashKey(), 1 },
+            { new String("two").HashKey(), 2 },
+            { new String("three").HashKey(), 3 },
+            { new Integer(4).HashKey(), 4 },
+            { new Object.Boolean(true).HashKey(), 5 },
+            { new Object.Boolean(false).HashKey(), 6 },
+        };
+        
+        Assert.Equal(result.Pairs.Count, expected.Count);
+
+        foreach (var (key, value) in expected)
+        {
+            Assert.True(result.Pairs.ContainsKey(key));
+            HashPair pair = result.Pairs[key];
+            
+            testIntegerObject(pair.Value, value);
+        }
+    }
+
+    [Fact]
     public void TestArrayIndexExpressions()
     {
         Expected<int>[] nonNullableTests =
