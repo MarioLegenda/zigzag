@@ -26,6 +26,10 @@ public class Parser: BaseParser
         this.prefixParsers[Tokens.TRUE] = new BooleanParser();
         this.prefixParsers[Tokens.FALSE] = new BooleanParser();
         
+        this.prefixParsers[Tokens.FUNCTION] = new FunctionParser();
+
+        this.prefixParsers[Tokens.LBRACKET] = new ArrayParser();
+
         this._infixParsers[Tokens.MINUS] = new InfixParser();
         this._infixParsers[Tokens.PLUS] = new InfixParser();
         this._infixParsers[Tokens.SLASH] = new InfixParser();
@@ -36,7 +40,6 @@ public class Parser: BaseParser
         this._infixParsers[Tokens.GT] = new InfixParser();
         this._infixParsers[Tokens.LPAREN] = new CallExpressionParser();
 
-        this.prefixParsers[Tokens.FUNCTION] = new FunctionParser();
     }
 
     public Program ParseProgram()

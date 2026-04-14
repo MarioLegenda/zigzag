@@ -36,6 +36,22 @@ public class ParserTest
     }
 
     [Fact]
+    public void TestParsingArrayLiterals()
+    {
+        string input = "[1, 2 * 2, 3 + 3]";
+        
+        Parser parser = new Parser(new Lexer(input));
+        Program program = parser.ParseProgram();
+        
+        Assert.NotNull(program);
+        Assert.Empty(parser.Errors());
+        
+        Ast.ExpressionStatement expressionStatement = (Ast.ExpressionStatement)program.Statements[0];
+        ArrayLiteral arrayLiteral = (ArrayLiteral)expressionStatement.Expression;
+        Assert.NotNull(arrayLiteral);
+    }
+    
+    [Fact]
     public void TestStringLiteralExpression()
     {
         string input = "\"hello world\"";
