@@ -114,6 +114,10 @@ public class Lexer
                 Token t18 = new Token(Tokens.RBRACKET, ((char)this.Ch).ToString());
                 this.readChar();
                 return t18;
+            case 58:
+                Token t19 = new Token(Tokens.COLON, ((char)this.Ch).ToString());
+                this.readChar();
+                return t19;
             default:
                 if (isLetter((char)this.Ch))
                 {

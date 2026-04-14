@@ -50,6 +50,7 @@ if (5 < 10) {
 ""foobar""
 ""foo bar""
 [1, 2];
+{""foo"": ""bar""}
 ";
 
         Expected[] expecteds =
@@ -135,6 +136,11 @@ if (5 < 10) {
             new Expected(Tokens.INT, "2"),
             new Expected(Tokens.RBRACKET, "]"),
             new Expected(Tokens.SEMICOLON, ";"),
+            new Expected(Tokens.LBRACE, "{"),
+            new Expected(Tokens.STRING, "foo"),
+            new Expected(Tokens.COLON, ":"),
+            new Expected(Tokens.STRING, "bar"),
+            new Expected(Tokens.RBRACE, "}"),
             new Expected(Tokens.EOF, "\0"),
         };
 

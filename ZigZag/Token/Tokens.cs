@@ -38,4 +38,5 @@ public class Tokens
 
     public const string LBRACKET = "[";
     public const string RBRACKET = "]";
+    public const string COLON = ":";
 }
