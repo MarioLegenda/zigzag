@@ -33,6 +33,27 @@ public class EvaluationTest
     }
 
     [Fact]
+    public void TestHashIndexExpressions()
+    {
+        Expected<int>[] nonNullableTests =
+        {
+            new Expected<int>("{\"foo\": 5}[\"foo\"]", 5),
+            new Expected<int>("let key = \"foo\"; {\"foo\": 5}[key]", 5),
+            new Expected<int>("{5: 5}[5]", 5),
+            new Expected<int>("{true: 5}[true]", 5),
+            new Expected<int>("{false: 5}[false]", 5),
+        };
+
+        foreach (var test in nonNullableTests)
+        {
+            IObject? evaluated = testEval(test.input);
+            Assert.NotNull(evaluated);
+            
+            testIntegerObject(evaluated, test.expected);
+        }
+    }
+
+    [Fact]
     public void TestHashLiterals()
     {
         string input = @"let two = ""two"";

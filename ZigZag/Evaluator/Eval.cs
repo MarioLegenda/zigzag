@@ -212,8 +212,31 @@ public class Eval
         {
             return evalArrayIndexExpression(left, index);
         }
+        else if (left.Type() == ObjectTypeEnum.HASH_OBJ)
+        {
+            return evalHashIndexExpression(left, index);
+        }
 
         return newError("index operator not supported: {0}", left.Type());
+    }
+
+    private IObject evalHashIndexExpression(IObject hash, IObject index)
+    {
+        Hash hashObject = (Hash)hash;
+        if (index is not Hashable)
+        {
+            return newError("unusable as hash key: {0}", index.Type());
+        }
+
+        Hashable key = (Hashable)index;
+        if (!hashObject.Pairs.ContainsKey(key.HashKey()))
+        {
+            return new Null();
+        }
+
+        HashPair pair = hashObject.Pairs[key.HashKey()];
+
+        return pair.Value;
     }
 
     private IObject evalArrayIndexExpression(IObject array, IObject index)
