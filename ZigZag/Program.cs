@@ -32,7 +32,6 @@ static void Start(TextReader input, TextWriter output)
         IObject? evaluated = new Eval().Evaluate(program, new ObjectEnvironment());
         if (evaluated is null)
         {
-            Console.WriteLine("Inside program");
             throw new ArgumentNullException();
         }
         

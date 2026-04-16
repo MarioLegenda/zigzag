@@ -10,6 +10,9 @@ public class Parser: BaseParser
     {
         this.Lexer = lexer;
         
+        /**
+         * Here, we initialize _currentToken and _peekToken in BaseParser
+         */
         this.NextToken();
         this.NextToken();
 
@@ -70,7 +73,12 @@ public class Parser: BaseParser
             throw new Exception($"No prefix parser for {this._currentToken.Type}");
         }
 
-        IParser parser = this.prefixParsers[this._currentToken.Type];
+        IParser? parser = this.prefixParsers[this._currentToken.Type];
+        if (parser is null)
+        {
+            throw new ArgumentNullException();
+        }
+        
         IExpression leftExp = parser.Parse(this._currentToken, this);
 
         while (!this.peekTokenIs(Tokens.SEMICOLON) && precedence < this.peekPrecendence())

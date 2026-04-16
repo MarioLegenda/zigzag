@@ -469,7 +469,7 @@ public class Eval
 
     public IObject evalBlockStatement(List<IStatement> stmts, ObjectEnvironment env)
     {
-        IObject result = null;
+        IObject? result = null;
         foreach (var stmt in stmts)
         {
             result = new Eval().Evaluate(stmt, env);
@@ -479,6 +479,8 @@ public class Eval
                 return result;
             }
         }
+        
+        ArgumentNullException.ThrowIfNull(result);
 
         return result;
     }

@@ -4,9 +4,21 @@ using ZigZag.Token;
 
 public class Lexer
 {
-    private string Input { get; set; }
+    /**
+     * Input is the current input 
+     */
+    private string Input { get; }
+    /**
+     * Position is the current character in the input
+     */
     private int Position { get; set; }
+    /**
+     * ReadPosition is the next character in the input
+     */
     private int ReadPosition { get; set; }
+    /**
+     * Current character as a byte
+     */
     private byte Ch { get; set; }
     
     public Lexer(string input)
@@ -15,6 +27,9 @@ public class Lexer
         this.readChar();
     }
 
+    /**
+     * Used by the parser to get the next token from the input. 
+     */
     public Token NextToken()
     {
         this.skipWhitespace();
@@ -22,6 +37,10 @@ public class Lexer
         switch (this.Ch)
         {
             case 61:
+                /**
+                 * If the token is a = sign, check if the next token is a = sign and then
+                 * create a Tokens.EQ token. If not, it is an assign token.
+                 */
                 if (this.peekChar() == 61)
                 {
                     byte c = this.Ch;
@@ -69,6 +88,10 @@ public class Lexer
                 this.readChar();
                 return t9;
             case 33:
+                /**
+                 * Current character is !, if the next character is a =, then it is a Token.NOT_EQ,
+                 * if it is not, then it is Tokens.BANG. 
+                 */
                 if (this.peekChar() == 61)
                 {
                     byte c = this.Ch;
@@ -119,6 +142,10 @@ public class Lexer
                 this.readChar();
                 return t19;
             default:
+                /**
+                 * If the token is a letter, then it is keyword. This keyword is
+                 * traversed until complete in the this.readIdentifier() function
+                 */
                 if (isLetter((char)this.Ch))
                 {
                     string identifier = this.readIdentifier();
@@ -137,6 +164,9 @@ public class Lexer
         }
     }
     
+    /**
+     * Reads the next character in the input, one by one. 
+     */
     private void readChar()
     {
         if (this.ReadPosition >= this.Input.Length)

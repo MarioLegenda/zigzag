@@ -8,7 +8,7 @@ public class Token
         Literal = literal;
     }
     
-    public string Type { get; set; }
+    public string Type { get; }
     
-    public string Literal { get; set; }
+    public string Literal { get; }
 }
