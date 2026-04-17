@@ -12,8 +12,6 @@ Start(Console.In, Console.Out);
 
 static void Start(TextReader input, TextWriter output)
 {
-    string bracket = ":";
-    Console.WriteLine((byte)bracket[0]);
     const string PROMPT = ">> ";
     
     while (true)
@@ -28,6 +26,8 @@ static void Start(TextReader input, TextWriter output)
         
         Parser p = new Parser(new Lexer(line));
         ZigZag.Ast.Program program = p.ParseProgram();
+        
+        Console.WriteLine(program.String());
 
         IObject? evaluated = new Eval().Evaluate(program, new ObjectEnvironment());
         if (evaluated is null)

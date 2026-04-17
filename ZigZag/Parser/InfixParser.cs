@@ -5,6 +5,10 @@ using Token;
 
 public class InfixParser: IInfixParser
 {
+    /**
+     * InfixParser always gets called with the current token as the operator (+, -, * etc...) and peek token
+     * as either a IntegerLiteral, BoolLiteral or something else expect the operators. 
+     */
     public IExpression Parse(Token token, IExpression left, Parser parser)
     {
         InfixExpression infixExpression = new InfixExpression();

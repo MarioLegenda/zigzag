@@ -66,6 +66,33 @@ public class Parser: BaseParser
         return program;
     }
     
+    /**
+     * Parsers tokens into IExpression literals
+     *
+     * For example, 3 + 3 * 4 / 4:
+     *
+     * The first thing ParseExpression does is to check if there is a prefix parser for the current token. At this
+     * point, current token is '3' and peek token is '+'. It finds that there is a prefix parser which is IntegerParser.
+     * That gets assigned to leftExp variable. Then, it enters the while loop.
+     *
+     * In the while loop, it checks if a semicolon is reached and if the current precendence passed to ParseExpression
+     * (which is currently LOWEST) is lower than the peek precendence (the precendence of the peek token). It evaluates
+     * to true and finds the InfixParser as the parser to parse the token. It then calls NextToken() which advances the tokens.
+     * They are now: current token -> +, peek token -> 3.
+     *
+     * InfixParser gets called with the leftExp variable which is an IntegerLiteral. InfixParser saves the current precendence,
+     * which is '+' at this point and again advances the tokens. InfixParser creates an InfixExpression which has the operator,
+     * Right and Left IExpression literals. The tokens are now: current token -> + and peek token -> 3. InfixParser saves the
+     * precendence of the current token (which is now '+'). InfixParser again advances the tokens which is now
+     * current token -> 3, peek token -> *. With that setup, it then calls ParseExpression again the with precendence of the
+     * previous current token (which was the '+' operator).
+     *
+     * ParseExpression (with current token -> 3 and peek token -> *). ParseExpression find the prefix parser (IntegerParser)
+     * for the current token (which is 3 at this point). It then enters the while loop again which evaluates to true since
+     * + < * (* is the peek token). ParseExpression advances the tokens again, so the tokens are now current token -> *
+     * and peek token -> 4. It then repeats the process again for these tokens. 
+     * 
+     */
     public IExpression ParseExpression(ParsingTokens precedence)
     {
         if (!this.prefixParsers.ContainsKey(this._currentToken.Type))
