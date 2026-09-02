@@ -4,38 +4,25 @@ using ZigZag.Parser;
 using ZigZag.Evaluator;
 using ZigZag.Object;
 
-string user = Environment.UserName;
-Console.WriteLine("Hello {0}, this is the ZigZag programming language.", user);
-Console.WriteLine("Type your commands:");
-
-Start(Console.In, Console.Out);
-
-static void Start(TextReader input, TextWriter output)
+if (args.Length == 0)
 {
-    const string PROMPT = ">> ";
-    
-    while (true)
-    {
-        output.Write(PROMPT);
-
-        string? line = input.ReadLine();
-        if (line == null)
-        {
-            return;
-        }
-        
-        Parser p = new Parser(new Lexer(line));
-        ZigZag.Ast.Program program = p.ParseProgram();
-        
-        Console.WriteLine(program.String());
-
-        IObject? evaluated = new Eval().Evaluate(program, new ObjectEnvironment());
-        if (evaluated is null)
-        {
-            throw new ArgumentNullException();
-        }
-        
-        Console.WriteLine(evaluated.Inspect());
-    }
+    Console.WriteLine("Please provide a file name.");
+    return;
 }
+
+string filename = args[0];
+string content = File.ReadAllText(filename);
+
+Parser p = new Parser(new Lexer(content));
+ZigZag.Ast.Program program = p.ParseProgram();
+
+// Console.WriteLine(program.String());
+
+IObject? evaluated = new Eval().Evaluate(program, new ObjectEnvironment());
+if (evaluated is null)
+{
+    throw new ArgumentNullException();
+}
+
+//Console.WriteLine(evaluated.Inspect());
 
